@@ -1,6 +1,7 @@
 # compiled output
 /dist
 /node_modules
+/zone_practice/*/node_modules
 
 # Logs
 logs
@@ -17,6 +18,9 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+/resources
+/src/matches
+/src/games
 
 # IDEs and editors
 /.idea

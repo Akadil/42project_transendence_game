@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pong Game</title>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="400" height="200"></canvas>
+    <script>
+        const socket = io();
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const paddleHeight = 40;
+        const paddleWidth = 10;
+
+        socket.emit('new-player');
+
+        socket.on('update', ({ players, ball }) => {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Render paddles for each player
+            for (const playerId in players) {
+                const player = players[playerId];
+                ctx.fillStyle = 'blue';
+                ctx.fillRect(player.x, player.y, paddleWidth, paddleHeight);
+            }
+
+            // Render the ball
+            ctx.fillStyle = 'red';
+            ctx.fillRect(ball.x, ball.y, 10, 10);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowUp') {
+                // Implement your own logic for moving the paddle up
+            } else if (event.key === 'ArrowDown') {
+                // Implement your own logic for moving the paddle down
+            }
+        });
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+</body>
+
+</html>
