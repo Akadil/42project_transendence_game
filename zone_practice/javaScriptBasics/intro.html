@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JavaScript Basics</title>
+    <style>
+        .rectangle {
+            width: 300px;
+            height: 20px;
+            background-color: #FF0000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>What Can JavaScript Do?</h2>
+
+    <!-- <p id="demo">JavaScript can change HTML content.</p>
+    <button type="button" id="myButton">Click Me!</button>
+
+    <p id="difFile">JavaScript function can be integrated from different file</p>
+    <button type="button" onclick="myFunction()">Change paragraph!</button>
+
+    <p>JavaScript can change HTML attributes.</p>
+    <button onclick="document.getElementById('myImage').src='assets/images/pic_bulbon.gif'">
+        Turn on the Light!
+    </button>
+    <img id="myImage" src="assets/images/pic_bulboff.gif" style="width:100px">
+    <button onclick="document.getElementById('myImage').src='assets/images/pic_bulboff.gif'">
+        Turn off the Light!
+    </button>
+
+    <br></br>
+
+    <p>Current time is :<span id="currentDate"></span></p>
+    <button onclick="document.getElementById('currentDate').innerHTML = Date()">
+        What is the time?
+    </button>
+
+    <br></br>
+    <h4>Now I am going to show the real Magic!</h4>
+    <div class="rectangle">
+        <p onmouseenter=displayDate() onmouseout=myClear()>Put your mouse coursor into me:</p>
+    </div>
+    <p id="mouseEvent"></p> -->
+
+    <br></br>
+    <h4>Add the whole blog and manipulate it</h4>
+    <p>
+        In this part, I will enable the user to add some elements
+        into the list, and then be able to retrieve this data
+    </p>
+    <input type="text" id="myInput" placeholder="elements...">
+    <button type="button" onclick=addElement()>Add the element</button>
+    <button type="button" onclick=concantenate()>Concantenate the list!</button>
+    <div id="blockOfList">
+        <ul id="myList">
+        </ul>
+        <p id="concantenateList"></p>
+    </div>
+
+    <script>
+        // document.getElementById("myButton").addEventListener("click", function () {
+        //     //document.getElementById("demo").innerHTML = "Hello World!";
+        //     if (document.getElementById("demo").style.display == "none")
+        //         document.getElementById("demo").style.display = "block";
+        //     else
+        //         document.getElementById("demo").style.display = "none";
+        //     window.alert("Cool! You clicked me!");
+        // });
+
+        document.getElementById("myInput").addEventListener("keydown", function (event) {
+            if (event.key == "Enter" || event.keyCode == 13) {
+                addElement();
+            }
+        });
+
+        addElement = function () {
+            let myElem = document.getElementById("myInput");
+            let elemValue = myElem.value;
+
+            if (elemValue === '') {
+                alert("Type something!");
+            } else {
+                let li = document.createElement("li");
+                let textNode = document.createTextNode(elemValue);
+
+                li.appendChild(textNode);
+                document.getElementById("myList").appendChild(li);
+                myElem.value = "";
+            }
+        }
+
+        concantenate = function () {
+            let myElem = document.getElementById("myList");
+            const myList = myElem.getElementsByTagName("li");
+            let concantenate = "";
+
+            for (let i = 0; i < myList.length; i++) {
+                console.log(myList[i].innerHTML);
+                concantenate += myList[i].innerHTML;
+                if (i + 1 < myList.length)
+                    concantenate += ", ";
+            }
+            let concantenateList =
+                document.getElementById("concantenateList").innerHTML = concantenate;
+        }
+
+        displayDate = function () {
+            console.log("displayDate");
+            document.getElementById("mouseEvent").innerHTML = Date();
+        }
+
+        myClear = function () {
+            console.log("clear");
+            document.getElementById("mouseEvent").innerHTML = "";
+        }
+    </script>
+    <script src="myScript.js"></script>
+    <!-- <script src="https://www.w3schools.com/js/myScript.js"></script> -->
+</body>
+
+</html>
