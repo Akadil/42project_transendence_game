@@ -16,7 +16,7 @@
 
     <h2>What Can JavaScript Do?</h2>
 
-    <!-- <p id="demo">JavaScript can change HTML content.</p>
+    <p id="demo">JavaScript can change HTML content.</p>
     <button type="button" id="myButton">Click Me!</button>
 
     <p id="difFile">JavaScript function can be integrated from different file</p>
@@ -43,7 +43,7 @@
     <div class="rectangle">
         <p onmouseenter=displayDate() onmouseout=myClear()>Put your mouse coursor into me:</p>
     </div>
-    <p id="mouseEvent"></p> -->
+    <p id="mouseEvent"></p>
 
     <br></br>
     <h4>Add the whole blog and manipulate it</h4>
@@ -60,15 +60,24 @@
         <p id="concantenateList"></p>
     </div>
 
+    <p name="qwerty"></p>
+
+    <h1 id="id1">My Heading 1</h1>
+
+    <button type="button" onclick="document.getElementById('id1').style.color = 'red'">
+        Click Me!
+    </button>
+
+
     <script>
-        // document.getElementById("myButton").addEventListener("click", function () {
-        //     //document.getElementById("demo").innerHTML = "Hello World!";
-        //     if (document.getElementById("demo").style.display == "none")
-        //         document.getElementById("demo").style.display = "block";
-        //     else
-        //         document.getElementById("demo").style.display = "none";
-        //     window.alert("Cool! You clicked me!");
-        // });
+        document.getElementById("myButton").addEventListener("click", function () {
+            //document.getElementById("demo").innerHTML = "Hello World!";
+            if (document.getElementById("demo").style.display == "none")
+                document.getElementById("demo").style.display = "block";
+            else
+                document.getElementById("demo").style.display = "none";
+            window.alert("Cool! You clicked me!");
+        });
 
         document.getElementById("myInput").addEventListener("keydown", function (event) {
             if (event.key == "Enter" || event.keyCode == 13) {
