@@ -3,10 +3,59 @@
 
 <head>
     <title>Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-board {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background-color: #333;
+            border: 2px solid white;
+        }
+
+        #paddle-left,
+        #paddle-right {
+            position: absolute;
+            width: 10px;
+            height: 100px;
+            background-color: white;
+        }
+
+        #paddle-left {
+            left: 10px;
+        }
+
+        #paddle-right {
+            right: 10px;
+        }
+
+        #ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+        }
+    </style>
 </head>
 
 <body>
     <canvas id="gameCanvas" width="400" height="200"></canvas>
+    <div id="game-board">
+        <div id="paddle-left"></div>
+        <div id="paddle-right"></div>
+        <div id="ball"></div>
+    </div>
+
     <script>
         const socket = io();
 

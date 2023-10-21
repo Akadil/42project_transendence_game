@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "In this project I am going to practice NestJS framework. I will follow the NestJS crash course on YouTube by Anson the Dev. The link to the video is https://www.youtube.com/watch?v=wqhNoDE6pb4&t=1s. ",
   "author": "Akadil Kalimoldayev",
+  "type": "module",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

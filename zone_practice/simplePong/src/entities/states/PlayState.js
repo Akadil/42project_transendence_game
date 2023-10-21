@@ -1,0 +1,6 @@
+export const PlayState {
+    SERVE_PLAYER_ONE: 0,
+    SERVE_PLAYER_TWO,
+    TOWARDS_PLAYER_ONE,
+    TOWARDS_PLAYER_TWO
+}
