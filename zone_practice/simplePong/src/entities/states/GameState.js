@@ -1,5 +1,5 @@
-export enum GameState {
-    MENU,
-    PLAYING,
-    GAME_OVER
+export const GameState = {
+    MENU: 'MENU',
+    PLAYING: 'PLAYING',
+    GAME_OVER: 'GAME_OVER'
 }

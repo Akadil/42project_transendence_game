@@ -1,6 +1,6 @@
-export enum ButtonState {
-    UP,
-    DOWN,
-    Hover,
-    Disabled
+export const ButtonState = {
+    UP: 'Up',
+    DOWN: 'Down',
+    Hover: 'Hover',
+    DISABLED: 'Disabled'
 }
