@@ -15,7 +15,13 @@ export class Court {
         }
     }
 
-    is
+    isPlayerOneScored() {
+        return this._game.ball.x > this._width / 40 * 38;
+    }
+
+    isPlayerTwoScored() {
+        return this._game.ball.x < this._width / 40 * 2;
+    }
 
     /* ********************************************************************** */
     /* Getters and Setters */

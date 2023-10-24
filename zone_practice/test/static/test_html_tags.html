@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html>
 
 <head>
-    <title>Pong Game</title>
     <style>
         body {
             background-color: #111;
@@ -62,53 +60,39 @@
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            width: 200px;
             color: #fff;
-            font-size: 24px;
+            font-family: sans-serif;
         }
 
-        /* You can add more styles for other game elements and effects */
+        .score {
+            font-size: 2em;
+        }
     </style>
 </head>
+<html>
 
 <body>
-    <!-- <canvas id="gameCanvas" width="400" height="200"></canvas> -->
     <div id="game">
-        <div class="ball" id="ball"></div>
-        <div class="paddle" id="paddleLeft"></div>
-        <div class="paddle" id="paddleRight"></div>
+        <div id="ball"></div>
+        <div id="paddleLeft" class="paddle"></div>
+        <div id="paddleRight" class="paddle"></div>
     </div>
-
-    <script src="/socket.io/socket.io.js"></script>
     <script>
+        console.log("This is a test of html tags");
+
         const ball = document.getElementById('ball');
-        const paddleLeft = document.getElementById('paddleLeft');
-        const paddleRight = document.getElementById('paddleRight');
-        const game = document.getElementById('game');
-
-        const gameWidth = game.style.width;
-        const gameHeight = game.style.height;
-        console.log("My width is " + gameWidth);
-
-        // Connect to the Socket.IO server
-        const socket = io();
-
-        socket.emit('start');
-
-        socket.on('gameState', (gameState) => {
-            // Update game elements using gameState data
-            console.log("The front received the gameState from the server.");
-
-            ball.style.left = gameState.ball.x * gameWidth + 'px';
-            ball.style.top = gameState.ball.y * gameHeight + 'px';
-
-            paddleLeft.style.top = gameState.playerOne.y * gameHeight + 'px';
-            paddleRight.style.top = gameState.playerTwo.y * gameHeight + 'px';
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from the Socket.IO server.');
-        });
-
+        console.log("ball is " + ball);
+        console.log("ball.style is " + ball.style);
+        console.log("ball.style.width is " + ball.style.width);
+        console.log("ball.style.height is " + ball.style.height);
+        console.log("ball.style.backgroundColor is " + ball.style.backgroundColor);
+        console.log("ball.style.borderRadius is " + ball.style.borderRadius);
+        console.log("ball.style.position is " + ball.style.position);
+        console.log("ball.style.top is " + ball.style.top);
+        console.log("ball.style.left is " + ball.style.left);
     </script>
 </body>
 

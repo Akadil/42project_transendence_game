@@ -1,5 +1,7 @@
-import { Vector } from "./Vector";
-import { Game } from "./Game";
+import { Buttons } from "./Buttons.js";
+import { Vector } from "./Vector.js";
+import { ButtonState } from "./states/ButtonState.js";
+import { GameState } from "./states/GameState.js";
 
 /**
  * @brief   Represents a paddle in the game.
@@ -131,4 +133,7 @@ export class Paddle {
     get y() { return this._position.y; }
     get buttons() { return this._buttons; }
     get attack() { return Math.floor(this._attack / 10); }
+    get width() { return this._width; }
+    get height() { return this._height; }
+    get direction() { return this._direction; }
 }

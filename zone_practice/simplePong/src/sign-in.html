@@ -53,20 +53,21 @@
 <body>
     <div class="container">
         <h2>Register</h2>
-        <form action="registration_process.php" method="POST">
+        <form id="signInForm" action="game.html" method="GET">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" placeholder="Your Name" required>
 
             <label for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="Your Email" required>
 
-            <input type="submit" value="Register" id="registerBtn">
+            <button type="submit">Submit</button>
         </form>
     </div>
 
     <script>
-        document.getElementById("registerBtn").addEventListener("click", function (event) {
+        document.getElementById("signInForm").addEventListener("click", function (event) {
             event.preventDefault();
+            console.log("Form submitted");
 
             // Get user inputs
             const name = document.getElementById("name").value;
@@ -78,23 +79,7 @@
                 email: email
             };
 
-            // Send a POST request to the server
-            fetch('/game', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Handle the response from the server
-                    console.log(data);
-                    // You can add further actions here, like displaying a success message or redirecting the user.
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+            window.location.href = 'game.html';
         });
     </script>
 </body>

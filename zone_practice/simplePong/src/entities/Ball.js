@@ -1,4 +1,6 @@
-import { PlayState } from "./states/PlayState";
+import { Vector } from "./Vector.js";
+import { GameState } from "./states/GameState.js";
+import { PlayState } from "./states/PlayState.js";
 
 /**
  * @brief   The ball object
@@ -33,10 +35,13 @@ export class Ball {
         else if (this._game.playState === PlayState.SERVE_PLAYER_ONE) {
             this._position.x = this._game.playerOne.x;
             this._position.y = this._game.playerOne.y;
+            this._direction = new Vector(1, 0);
+            this._game.playState == PlayState.TOWARDS_PLAYER_TWO;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_TWO) {
             this._position.x = this._game.playerTwo.x;
             this._position.y = this._game.playerTwo.y;
+            this._game.playState == PlayState.TOWARDS_PLAYER_ONE;
         }
         else {
             let newX = this._position.x + this._direction.x * this._speed;
@@ -79,4 +84,14 @@ export class Ball {
         this._position.x = this._position.x - dotNotation * normVector.x;
         this._position.y = this._position.y - dotNotation * normVector.y;
     }
+
+    /**
+     * @brief   Getters and Setters
+     */
+    get position() { return this._position; }
+    get x() { return this._position.x; }
+    get y() { return this._position.y; }
+    get radius() { return this._radius; }
+    get speed() { return this._speed; }
+    get direction() { return this._direction; }
 }

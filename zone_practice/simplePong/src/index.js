@@ -1,56 +1,37 @@
 import express from 'express';
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 import postgres from 'postgres';
 import { Server } from 'socket.io';
-
-const db = await open();
+import cors from 'cors';
+import { Game } from "./entities/Game.js";
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     connectionStateRecovery: {},
-    cors: {
-        origin: '*',
-    }
 });
 
-app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], }));
+const game = new Game(10);
 
 io.on('connection', async (socket) => {
 
     console.log('a user connected. Socket id: ' + socket.id);
 
-    socket.on('start', async (msg, clientOffset, callback) => {
-
+    socket.on('start', async () => {
+        console.log('Game started! Aller!');
+        game.startGame();
+        setInterval(() => {
+            socket.emit('gameState', game.gameInfo);
+        }, 1000 / 60);
     });
 
-    // KeyDown_press;
-    // KeyDown_release;
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
 
-    // KeyUp_press;
-    // KeyUp_release;
-
-    // KeyLeft_press;
-    // KeyLeft_release;
-
-    // KeyRight_press;
-    // KeyRight_release;
-
-    // KeySpace_press;
-    // KeySpace_release;
-
-    if (!socket.recovered) {
-        try {
-            await db.each('SELECT id, content FROM messages WHERE id > ?',
-                [socket.handshake.auth.serverOffset || 0],
-                (_err, row) => {
-                    socket.emit('chat message', row.content, row.id);
-                }
-            )
-        } catch (e) {
-            // something went wrong
-        }
-    }
+app.get('/', (req, res) => {
+    res.sendFile(new URL('./game.html', import.meta.url).pathname)
 });
 
 server.listen(3001, () => {
@@ -58,27 +39,11 @@ server.listen(3001, () => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
 /* ************************************************************************** */
-/**
- * 	Express server setup
- */
+/* 	Express server setup */
 /* ************************************************************************** */
 
-app.get('/', (req, res) => {
-    res.sendFile(new URL('./index.html', import.meta.url).pathname)
-});
 
-app.post('/game', (req, res) => {
-    res.sendFile(new URL('./game.html', import.meta.url).pathname)
-});
+// app.get('/game', (req, res) => {
+//     res.sendFile(new URL('./game.html', import.meta.url).pathname)
+// });

@@ -1,4 +1,4 @@
-import { ButtonState } from "./states/ButtonState";
+import { ButtonState } from "./states/ButtonState.js";
 
 export class Buttons {
     constructor(activateSide = 0, activateRotation = 0, activateShoot = 0) {
