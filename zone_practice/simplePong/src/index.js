@@ -25,6 +25,91 @@ io.on('connection', async (socket) => {
         }, 1000 / 60);
     });
 
+    socket.on('keyDown', async (data) => {
+        switch (data) {
+            case 'w':
+                game.playerOne.buttons.pressUp();
+                break;
+            case 's':
+                game.playerOne.buttons.pressDown();
+                break;
+            case 'a':
+                game.playerOne.buttons.pressLeft();
+                break;
+            case 'd':
+                game.playerOne.buttons.pressRight();
+                break;
+            case 'ArrowUp':
+                game.playerTwo.buttons.pressUp();
+                break;
+            case 'ArrowDown':
+                game.playerTwo.buttons.pressDown();
+                break;
+            case 'ArrowLeft':
+                game.playerTwo.buttons.pressLeft();
+                break;
+            case 'ArrowRight':
+                game.playerTwo.buttons.pressRight();
+                break;
+            case 'h':
+                game.playerOne.buttons.pressRotateLeft();
+                break;
+            case 'j':
+                game.playerOne.buttons.pressRotateRight();
+                break;
+            case ' ':
+                game.playerOne.buttons.pressShoot();
+                break;
+            default:
+                break;
+        }
+    });
+
+    socket.on('keyUp', async (data) => {
+        switch (data) {
+            case 'w':
+                game.playerOne.buttons.releaseUp();
+                break;
+            case 's':
+                game.playerOne.buttons.releaseDown();
+                break;
+            case 'a':
+                game.playerOne.buttons.releaseLeft();
+                break;
+            case 'd':
+                game.playerOne.buttons.releaseRight();
+                break;
+            case 'ArrowUp':
+                game.playerTwo.buttons.releaseUp();
+                break;
+            case 'ArrowDown':
+                game.playerTwo.buttons.releaseDown();
+                break;
+            case 'ArrowLeft':
+                game.playerTwo.buttons.releaseLeft();
+                break;
+            case 'ArrowRight':
+                game.playerTwo.buttons.releaseRight();
+                break;
+            case 'h':
+                game.playerOne.buttons.releaseRotateLeft();
+                break;
+            case 'j':
+                game.playerOne.buttons.releaseRotateRight();
+                break;
+            case ' ':
+                game.playerOne.buttons.releaseShoot();
+                break;
+            default:
+                break;
+        }
+    });
+
+    socket.on('pause', async () => {
+        console.log('Game paused!');
+        game.pauseGame();
+    });
+
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });

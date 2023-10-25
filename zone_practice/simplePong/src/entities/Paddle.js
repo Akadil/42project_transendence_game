@@ -2,6 +2,7 @@ import { Buttons } from "./Buttons.js";
 import { Vector } from "./Vector.js";
 import { ButtonState } from "./states/ButtonState.js";
 import { GameState } from "./states/GameState.js";
+import { PlayState } from "./states/PlayState.js";
 
 /**
  * @brief   Represents a paddle in the game.
@@ -35,11 +36,11 @@ export class Paddle {
             );
             this._direction = new Vector(-1, 0);
         }
-        this._buttons = new Buttons();
-        this._width = game.court.width / 40;
-        this._height = game.court.height / 5;
-        this._speed = 1;
-        this._rotationSpeed = 1;
+        this._buttons = new Buttons(1, 1, 1);
+        this._width = game.court.width / 80;
+        this._height = game.court.width / 10;
+        this._speed = game.court.width / 200;
+        this._rotationSpeed = 2;
         this._attack = 10;
     }
 
@@ -58,6 +59,9 @@ export class Paddle {
      */
     update() {
         if (this._game.gameState !== GameState.PLAYING) { return; }
+        if (this._game.playState === PlayState.SERVE_PLAYER_ONE && this._buttons.shoot == ButtonState.DOWN) {
+            this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
+        }
 
         this.updateUpDown();
         this.updateLeftRight();
@@ -89,12 +93,12 @@ export class Paddle {
         if (statement1 && !statement2) {
             let newX = this._position.x - this._width / 2 - this._speed;
 
-            if (newX < this._game.court.width)
+            if (newX > this._game.court.width / 40 * 2)
                 this._position.x -= this._speed;
         } else if (statement2) {
             let newX = this._position.x - this._width / 2 - this._speed;
 
-            if (newX > 0)
+            if (newX < this._game.court.width / 2)
                 this._position.x += this._speed;
         }
     }

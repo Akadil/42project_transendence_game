@@ -39,16 +39,16 @@ export class Game {
         this._playerTwo.update();         // depends on the button state
         this._ball.update();              // depends on the playState
 
-        if (this._court.isPlayerOneScored()) {
-            this._playerOneScore++;
-            this._playState = PlayState.SERVE_PLAYER_TWO;
-        } else if (this._court.isPlayerTwoScored()) {
-            this._playerTwoScore++;
-            this._playState = PlayState.SERVE_PLAYER_ONE;
-        }
-        if (this._playerOneScore >= this._maxScore || this._playerTwoScore >= this._maxScore) {
-            this._gameState = GameState.GAME_OVER;
-        }
+        // if (this._court.isPlayerOneScored()) {
+        //     this._playerOneScore++;
+        //     this._playState = PlayState.SERVE_PLAYER_TWO;
+        // } else if (this._court.isPlayerTwoScored()) {
+        //     this._playerTwoScore++;
+        //     this._playState = PlayState.SERVE_PLAYER_ONE;
+        // }
+        // if (this._playerOneScore >= this._maxScore || this._playerTwoScore >= this._maxScore) {
+        //     this._gameState = GameState.GAME_OVER;
+        // }
     }
 
     button_pressed(player, button) {
@@ -140,6 +140,9 @@ export class Game {
     get gameState() { return this._gameState; }
     get playState() { return this._playState; }
 
+    set gameState(value) { this._gameState = value; }
+    set playState(value) { this._playState = value; }
+
     get gameInfo() {
         return {
             "gameState": this._gameState,
@@ -157,7 +160,7 @@ export class Game {
                 "y": this._playerOne.position.y,
                 "width": this._playerOne.width,
                 "height": this._playerOne.height,
-                "directionAngle": this._playerOne.direction.angle,
+                "angle": this._playerOne.direction.angle,
                 "attack": this._playerOne.attack / 10
             },
             "playerTwo": {
@@ -166,7 +169,7 @@ export class Game {
                 "y": this._playerTwo.position.y,
                 "width": this._playerTwo.width,
                 "height": this._playerTwo.height,
-                "directionAngle": this._playerTwo.direction.angle,
+                "angle": this._playerTwo.direction.angle,
                 "attack": this._playerTwo.attack / 10
             },
             "playState": this._playState,

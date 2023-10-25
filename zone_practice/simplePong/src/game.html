@@ -16,19 +16,19 @@
         #game {
             position: relative;
             width: 600px;
-            height: 400px;
+            height: 300px;
             background-color: #333;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
 
         #ball {
-            width: 20px;
-            height: 20px;
+            width: 15px;
+            height: 15px;
             background-color: #fff;
             border-radius: 50%;
             position: absolute;
-            top: 200px;
-            left: 290px;
+            top: 150px;
+            left: 300px;
             transform: translate(-50%, -50%);
         }
 
@@ -42,7 +42,7 @@
         #paddleLeft {
             top: 200px;
             left: 50px;
-            transform: translate(-50%, -50%) rotate(45deg);
+            transform: translate(-50%, -50%);
         }
 
         #paddleRight {
@@ -83,26 +83,63 @@
         const ball = document.getElementById('ball');
         const paddleLeft = document.getElementById('paddleLeft');
         const paddleRight = document.getElementById('paddleRight');
-        const game = document.getElementById('game');
+        const game = document.getElementById("game");
 
-        const gameWidth = game.style.width;
-        const gameHeight = game.style.height;
-        console.log("My width is " + gameWidth);
+        let gameScale = game.offsetWidth;
 
         // Connect to the Socket.IO server
         const socket = io();
 
         socket.emit('start');
 
+        /*
+             .paddle {
+                    width: 10px;
+                    height: 80px;
+                    background-color: #fff;
+                    position: absolute;
+                }
+
+                #paddleLeft {
+                    top: 200px;
+                    left: 50px;
+                    transform: translate(-50%, -50%);
+                }
+        */
+
         socket.on('gameState', (gameState) => {
             // Update game elements using gameState data
             console.log("The front received the gameState from the server.");
 
-            ball.style.left = gameState.ball.x * gameWidth + 'px';
-            ball.style.top = gameState.ball.y * gameHeight + 'px';
+            console.log(gameState);
+            ball.style.left = gameState.ball.x * gameScale + 'px';
+            ball.style.top = gameState.ball.y * gameScale + 'px';
+            ball.style.width = gameState.ball.radius * gameScale + 'px';
+            ball.style.height = gameState.ball.radius * gameScale + 'px';
 
-            paddleLeft.style.top = gameState.playerOne.y * gameHeight + 'px';
-            paddleRight.style.top = gameState.playerTwo.y * gameHeight + 'px';
+            paddleLeft.style.top = gameState.playerOne.y * gameScale + 'px';
+            paddleLeft.style.left = gameState.playerOne.x * gameScale + 'px';
+            paddleLeft.style.width = gameState.playerOne.width * gameScale + 'px';
+            paddleLeft.style.height = gameState.playerOne.height * gameScale + 'px';
+            console.log("The angle: ", gameState.playerOne.angle);
+            paddleLeft.style.transform = 'translate(-50%, -50%)' + 'rotate(' + gameState.playerOne.angle + 'deg)';
+            console.log("The angle: ", paddleLeft.style.transform);
+
+            paddleRight.style.top = gameState.playerTwo.y * gameScale + 'px';
+            paddleRight.style.left = gameState.playerTwo.x * gameScale + 'px';
+            paddleRight.style.width = gameState.playerTwo.width * gameScale + 'px';
+            paddleRight.style.height = gameState.playerTwo.height * gameScale + 'px';
+            paddleRight.style.transform = 'translate(-50%, -50%)' + 'rotate(' + gameState.playerTwo.angle + 'deg)';
+        });
+
+        // Add a keydown event listener to detect key press
+        document.addEventListener("keydown", function (event) {
+            socket.emit('keyDown', event.key);
+        });
+
+        // Add a keyup event listener to detect key release
+        document.addEventListener("keyup", function (event) {
+            socket.emit('keyUp', event.key);
         });
 
         socket.on('disconnect', () => {

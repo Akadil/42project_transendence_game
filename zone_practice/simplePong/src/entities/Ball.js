@@ -10,14 +10,14 @@ import { PlayState } from "./states/PlayState.js";
  */
 export class Ball {
 
-    constructor(game, radius = game.court.height / 40) {
+    constructor(game, radius = game.court.width / 40) {
         this._game = game;
         this._position = new Vector(
             this._game.playerOne.x,
             this._game.playerOne.y
         );
         this._direction = new Vector(1, 0);
-        this._speed = 1;
+        this._speed = game.court.width / 200;
         this._radius = radius;
     }
 
@@ -33,13 +33,18 @@ export class Ball {
             return;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_ONE) {
-            this._position.x = this._game.playerOne.x;
-            this._position.y = this._game.playerOne.y;
-            this._direction = new Vector(1, 0);
+
+            this._position.x = this._game.playerOne.x +
+                (this._game.playerOne.width / 2 + this._radius / 2) * this._game.playerOne.direction.x;
+
+            this._position.y = this._game.playerOne.y +
+                (this._game.playerOne.width / 2 + this._radius / 2) * this._game.playerOne.direction.y;
+
+            this._direction = this._game.playerOne.direction;
             this._game.playState == PlayState.TOWARDS_PLAYER_TWO;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_TWO) {
-            this._position.x = this._game.playerTwo.x;
+            this._position.x = this._game.playerTwo.x - this._game.playerTwo.width / 2 - this._radius / 2;
             this._position.y = this._game.playerTwo.y;
             this._game.playState == PlayState.TOWARDS_PLAYER_ONE;
         }
@@ -49,20 +54,21 @@ export class Ball {
 
             if (newX < 0 || newX > this._game.court.width) {
                 // I have to show that the player has scored??
+                this._direction.x *= -1;
             }
             else if (newY < 0 || newY > this._game.court.height) {
                 this._direction.y *= -1;
-                this.update();      // I think here should be recursion
             }
             else {
                 let obstacle = this._game.court.isOccupiedByPaddle(newX, newY);
 
+                console.log("I was here");
                 if (obstacle === null) {
                     this._position.x = newX;
                     this._position.y = newY;
                 } else {
-                    this.Rebound(obstacle);
-                    this._speed = obstacle.attack;
+                    this.rebound(obstacle);
+                    // this._speed = obstacle.attack;
                     obstacle.refreshAttack();
                 }
             }
@@ -77,12 +83,23 @@ export class Ball {
      * @formula     v2 = v1 - 2 * (v1 . n) * n
      */
     rebound(object) {
-        let normVector = object.position;
+        // let normVector = object.position;
 
-        let dotNotation = 2 * (this._position.x * normVector.x +
-            this._position.y * normVector.y);
-        this._position.x = this._position.x - dotNotation * normVector.x;
-        this._position.y = this._position.y - dotNotation * normVector.y;
+        // let dotNotation = 2 * (this._position.x * normVector.x +
+        //     this._position.y * normVector.y);
+        // this._position.x = this._position.x - dotNotation * normVector.x;
+        // this._position.y = this._position.y - dotNotation * normVector.y;
+        let normVector = object.direction;
+
+
+        console.log("My position before: " + this.direction.x + " " + this.direction.y);
+        console.log("My normVector: " + normVector.x + " " + normVector.y);
+        let dotNotation = 2 * (this._direction.x * normVector.x +
+            this._direction.y * normVector.y);
+        this._direction.x = this._direction.x - dotNotation * normVector.x;
+        this._direction.y = this._direction.y - dotNotation * normVector.y;
+        this._game.playState = PlayState.TOWARDS_PLAYER_ONE;
+        console.log("My position after: " + this.direction.x + " " + this.direction.y);
     }
 
     /**
@@ -94,4 +111,11 @@ export class Ball {
     get radius() { return this._radius; }
     get speed() { return this._speed; }
     get direction() { return this._direction; }
+
+    set position(value) { this._position = value; }
+    set x(value) { this._position.x = value; }
+    set y(value) { this._position.y = value; }
+    set radius(value) { this._radius = value; }
+    set speed(value) { this._speed = value; }
+    set direction(value) { this._direction = value; }
 }

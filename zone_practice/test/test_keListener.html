@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Key Press Event</title>
+</head>
+
+<body>
+    <p>Press a key to see the code and key name:</p>
+    <p id="keyInfo"></p>
+
+    <script>
+        const keyInfoElement = document.getElementById("keyInfo");
+
+        // Add a keydown event listener to detect key press
+        document.addEventListener("keydown", function (event) {
+            const keyName = event.key;
+            keyInfoElement.textContent = `Key Pressed: {${keyName}} ${event.keyCode}`;
+        });
+
+        // Add a keyup event listener to detect key release
+        document.addEventListener("keyup", function (event) {
+            const keyName = event.key;
+            keyInfoElement.textContent = `Key Released: ${keyName} ${event.keyCode}`;
+        });
+    </script>
+</body>
+
+</html>
