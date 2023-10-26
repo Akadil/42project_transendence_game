@@ -92,21 +92,6 @@
 
         socket.emit('start');
 
-        /*
-             .paddle {
-                    width: 10px;
-                    height: 80px;
-                    background-color: #fff;
-                    position: absolute;
-                }
-
-                #paddleLeft {
-                    top: 200px;
-                    left: 50px;
-                    transform: translate(-50%, -50%);
-                }
-        */
-
         socket.on('gameState', (gameState) => {
             // Update game elements using gameState data
             console.log("The front received the gameState from the server.");
@@ -121,9 +106,8 @@
             paddleLeft.style.left = gameState.playerOne.x * gameScale + 'px';
             paddleLeft.style.width = gameState.playerOne.width * gameScale + 'px';
             paddleLeft.style.height = gameState.playerOne.height * gameScale + 'px';
-            console.log("The angle: ", gameState.playerOne.angle);
             paddleLeft.style.transform = 'translate(-50%, -50%)' + 'rotate(' + gameState.playerOne.angle + 'deg)';
-            console.log("The angle: ", paddleLeft.style.transform);
+            paddleLeft.style.backgroundColor = getColorBasedOnValue(gameState.playerOne.attack);
 
             paddleRight.style.top = gameState.playerTwo.y * gameScale + 'px';
             paddleRight.style.left = gameState.playerTwo.x * gameScale + 'px';
@@ -145,6 +129,17 @@
         socket.on('disconnect', () => {
             console.log('Disconnected from the Socket.IO server.');
         });
+
+        function getColorBasedOnValue(value) {
+            // Ensure the value is within the valid range (1 to 100)
+            value = Math.max(1, Math.min(100, value));
+
+            // Calculate the red component of the color
+            const red = 255 - (value - 1) * 2.55;
+
+            // Create and return the RGB color as a string
+            return `rgb(255, ${red}, ${red})`;
+        }
 
     </script>
 </body>

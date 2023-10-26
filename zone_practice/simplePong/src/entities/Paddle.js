@@ -23,6 +23,7 @@ export class Paddle {
      */
     constructor(game, player) {
         this._game = game;
+        this._name = player;
         if (player === "playerOne") {
             this._position = new Vector(
                 game.court.width / 40 * 2,
@@ -40,18 +41,41 @@ export class Paddle {
         this._width = game.court.width / 80;
         this._height = game.court.width / 10;
         this._speed = game.court.width / 200;
-        this._rotationSpeed = 2;
+        this._rotationSpeed = 4;
         this._attack = 10;
+        this._defaultAttack = 10;
     }
 
     /**
      * @attention   This one is wrong! It works only with straing rectangles
      */
-    isPointInside(x, y) {
-        return (x >= this._position.x - this._width / 2 &&
-            x <= this._position.x + this._width / 2 &&
-            y >= this._position.y - this._height / 2 &&
-            y <= this._position.y + this._height / 2);
+    isPointInside(x, y, radius) {
+        /*  ChatGPT version  */
+        // const halfWidth = this._width / 2;
+        // const halfHeight = this._height / 2;
+
+        // const closestX = Math.max(this._position.x - halfWidth, Math.min(x, this._position.x + halfWidth));
+        // const closestY = Math.max(this._position.y - halfHeight, Math.min(y, this._position.y + halfHeight));
+
+        // const distanceX = x - closestX;
+        // const distanceY = y - closestY;
+
+        // return (distanceX ** 2 + distanceY ** 2) <= (radius ** 2);
+
+        /*  My fucking version, because I am fucking better than him */
+        const hypoVec = new Vector(x - this._position.x, y - this._position.y);
+
+        /* Pour le cos, I have to take absolute value  */
+        const cosAngle = Math.abs((hypoVec.x * this._direction.x + hypoVec.y * this._direction.y)
+            / hypoVec.length / this._direction.length);
+        const sinAngle = Math.abs(hypoVec.x * this._direction.y - hypoVec.y * this._direction.x)
+            / hypoVec.length / this._direction.length;
+        if (cosAngle * hypoVec.length < this._width / 2 + radius) {
+            if (sinAngle * this._height / 2 + radius > hypoVec.length) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -118,15 +142,15 @@ export class Paddle {
         let statement1 = this._buttons.shoot === ButtonState.DOWN;
         let statement2 = this._buttons.shoot === ButtonState.UP;
 
-        if (statement1 && this._attackPower < 50) {
-            this._attackPower += 1;
-        } else if (statement2 && this._attackPower > 10) {
-            this._attackPower -= 1;
+        if (statement1 && this._attack < 100) {
+            this._attack += 2;
+        } else if (statement2 && this._attack > 10) {
+            this._attack = this._defaultAttack;
         }
     }
 
     refreshAttack() {
-        this._attackPower = 10;
+        this._attack = this._defaultAttack;
     }
 
     /* ********************************************************************** */
@@ -136,7 +160,7 @@ export class Paddle {
     get x() { return this._position.x; }
     get y() { return this._position.y; }
     get buttons() { return this._buttons; }
-    get attack() { return Math.floor(this._attack / 10); }
+    get attack() { return Math.floor(this._attack); }
     get width() { return this._width; }
     get height() { return this._height; }
     get direction() { return this._direction; }

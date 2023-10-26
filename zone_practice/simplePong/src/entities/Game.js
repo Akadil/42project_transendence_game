@@ -39,6 +39,8 @@ export class Game {
         this._playerTwo.update();         // depends on the button state
         this._ball.update();              // depends on the playState
 
+        // console.log("The ball info: ", this._ball.x, this._ball.y, this._ball.direction.x, this._ball.direction.y);
+
         // if (this._court.isPlayerOneScored()) {
         //     this._playerOneScore++;
         //     this._playState = PlayState.SERVE_PLAYER_TWO;
@@ -161,7 +163,7 @@ export class Game {
                 "width": this._playerOne.width,
                 "height": this._playerOne.height,
                 "angle": this._playerOne.direction.angle,
-                "attack": this._playerOne.attack / 10
+                "attack": this._playerOne.attack
             },
             "playerTwo": {
                 "score": this._playerTwoScore,
@@ -170,7 +172,7 @@ export class Game {
                 "width": this._playerTwo.width,
                 "height": this._playerTwo.height,
                 "angle": this._playerTwo.direction.angle,
-                "attack": this._playerTwo.attack / 10
+                "attack": this._playerTwo.attack
             },
             "playState": this._playState,
         }

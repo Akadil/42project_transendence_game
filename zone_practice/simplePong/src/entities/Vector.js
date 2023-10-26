@@ -6,7 +6,7 @@
 /*   By: akalimol <akalimol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 12:31:01 by akalimol          #+#    #+#             */
-/*   Updated: 2023/10/25 19:01:19 by akalimol         ###   ########.fr       */
+/*   Updated: 2023/10/26 18:09:14 by akalimol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,11 @@ export class Vector {
      */
     rotate(angle) {
         angle = angle * Math.PI / 180;
+        let oldX = this._x;
+        let oldY = this._y;
 
-        this._x = this._x * Math.cos(angle) - this._y * Math.sin(angle);
-        this._y = this._x * Math.sin(angle) + this._y * Math.cos(angle);
+        this._x = oldX * Math.cos(angle) - oldY * Math.sin(angle);
+        this._y = oldX * Math.sin(angle) + oldY * Math.cos(angle);
     }
 
     /* ********************************************************************** */
@@ -37,6 +39,7 @@ export class Vector {
     get x() { return this._x; }
     get y() { return this._y; }
     get angle() { return Math.atan2(this._y, this._x) * 180 / Math.PI; }
+    get length() { return Math.sqrt(this._x ** 2 + this._y ** 2); }
     set x(value) { this._x = value; }
     set y(value) { this._y = value; }
 }

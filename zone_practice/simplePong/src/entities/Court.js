@@ -5,10 +5,10 @@ export class Court {
         this._height = height;
     }
 
-    isOccupiedByPaddle(x, y) {
-        if (this._game.playerOne.isPointInside(x, y)) {
+    isOccupiedByPaddle(x, y, radius) {
+        if (this._game.playerOne.isPointInside(x, y, radius)) {
             return this._game.playerOne;
-        } else if (this._game.playerTwo.isPointInside(x, y)) {
+        } else if (this._game.playerTwo.isPointInside(x, y, radius)) {
             return this._game.playerTwo;
         } else {
             return null;

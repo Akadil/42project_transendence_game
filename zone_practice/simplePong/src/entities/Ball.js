@@ -17,7 +17,8 @@ export class Ball {
             this._game.playerOne.y
         );
         this._direction = new Vector(1, 0);
-        this._speed = game.court.width / 200;
+        this._defaultSpeed = game.court.width / 150;
+        this._speed = game.court.width / 150;
         this._radius = radius;
     }
 
@@ -33,42 +34,51 @@ export class Ball {
             return;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_ONE) {
-
             this._position.x = this._game.playerOne.x +
                 (this._game.playerOne.width / 2 + this._radius / 2) * this._game.playerOne.direction.x;
 
             this._position.y = this._game.playerOne.y +
                 (this._game.playerOne.width / 2 + this._radius / 2) * this._game.playerOne.direction.y;
 
-            this._direction = this._game.playerOne.direction;
+            this._direction.x = this._game.playerOne.direction.x;
+            this._direction.y = this._game.playerOne.direction.y;
             this._game.playState == PlayState.TOWARDS_PLAYER_TWO;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_TWO) {
-            this._position.x = this._game.playerTwo.x - this._game.playerTwo.width / 2 - this._radius / 2;
-            this._position.y = this._game.playerTwo.y;
-            this._game.playState == PlayState.TOWARDS_PLAYER_ONE;
+            this._position.x = this._game.playerTwo.x +
+                (this._game.playerTwo.width / 2 + this._radius / 2) * this._game.playerTwo.direction.x;
+
+            this._position.y = this._game.playerTwo.y +
+                (this._game.playerTwo.width / 2 + this._radius / 2) * this._game.playerTwo.direction.y;
+
+            this._direction.x = this._game.playerTwo.direction.x;
+            this._direction.y = this._game.playerTwo.direction.y;
+            this._game.playState == PlayState.TOWARDS_PLAYER_TWO;
         }
         else {
             let newX = this._position.x + this._direction.x * this._speed;
             let newY = this._position.y + this._direction.y * this._speed;
 
-            if (newX < 0 || newX > this._game.court.width) {
-                // I have to show that the player has scored??
+            if (newX - this._radius / 2 < 0 || newX + this._radius / 2 > this._game.court.width) {
                 this._direction.x *= -1;
+                this._speed = this._defaultSpeed;
             }
-            else if (newY < 0 || newY > this._game.court.height) {
+            else if (newY - this._radius / 2 < 0 || newY + this._radius / 2 > this._game.court.height) {
                 this._direction.y *= -1;
+                if (this._speed / 1.5 > this._defaultSpeed)
+                    this._speed = this._speed / 1.5;
+                else
+                    this._speed = this._defaultSpeed;
             }
             else {
-                let obstacle = this._game.court.isOccupiedByPaddle(newX, newY);
+                let obstacle = this._game.court.isOccupiedByPaddle(newX, newY, this._radius / 2);
 
-                console.log("I was here");
                 if (obstacle === null) {
                     this._position.x = newX;
                     this._position.y = newY;
                 } else {
                     this.rebound(obstacle);
-                    // this._speed = obstacle.attack;
+                    this._speed = this._speed + this._speed * obstacle.attack / 100 * 2;
                     obstacle.refreshAttack();
                 }
             }
@@ -83,23 +93,22 @@ export class Ball {
      * @formula     v2 = v1 - 2 * (v1 . n) * n
      */
     rebound(object) {
-        // let normVector = object.position;
-
-        // let dotNotation = 2 * (this._position.x * normVector.x +
-        //     this._position.y * normVector.y);
-        // this._position.x = this._position.x - dotNotation * normVector.x;
-        // this._position.y = this._position.y - dotNotation * normVector.y;
         let normVector = object.direction;
 
-
-        console.log("My position before: " + this.direction.x + " " + this.direction.y);
-        console.log("My normVector: " + normVector.x + " " + normVector.y);
         let dotNotation = 2 * (this._direction.x * normVector.x +
             this._direction.y * normVector.y);
-        this._direction.x = this._direction.x - dotNotation * normVector.x;
-        this._direction.y = this._direction.y - dotNotation * normVector.y;
-        this._game.playState = PlayState.TOWARDS_PLAYER_ONE;
-        console.log("My position after: " + this.direction.x + " " + this.direction.y);
+
+        if (Math.abs(dotNotation) < 0.5) {
+            this._direction.x *= -1;
+            this._direction.y *= -1;
+            return;
+        }
+        this._direction.x = this._direction.x - dotNotation * (normVector.x / normVector.length);
+        this._direction.y = this._direction.y - dotNotation * (normVector.y / normVector.length);
+        if (this._game.playState === PlayState.TOWARDS_PLAYER_ONE)
+            this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
+        else
+            this._game.playState = PlayState.TOWARDS_PLAYER_ONE;
     }
 
     /**
