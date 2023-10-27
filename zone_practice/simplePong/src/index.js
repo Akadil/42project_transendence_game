@@ -1,9 +1,8 @@
 import express from 'express';
 import { createServer } from 'node:http';
-import postgres from 'postgres';
 import { Server } from 'socket.io';
-import cors from 'cors';
 import { Game } from "./entities/Game.js";
+import { read } from 'node:fs';
 
 const app = express();
 const server = createServer(app);
@@ -11,97 +10,79 @@ const io = new Server(server, {
     connectionStateRecovery: {},
 });
 
-const game = new Game(10);
+// const game = new Game(10);
+let waitingUser = "";
+let readyUser = "";
+const activePlayers = [];
+const games = [];
+let id = 0;
+let numOfReady = 0;
 
 io.on('connection', async (socket) => {
 
     console.log('a user connected. Socket id: ' + socket.id);
-
     socket.on('start', async () => {
-        console.log('Game started! Aller!');
-        game.startGame();
-        setInterval(() => {
-            socket.emit('gameState', game.gameInfo);
-        }, 1000 / 60);
+        console.log("One user is about to start! ", socket.id)
+        if (waitingUser === "") {
+            waitingUser = socket.id;
+            socket.join(id);
+        } else {
+            readyUser = socket.id;
+            socket.join(id);
+
+            /* Create a new game */
+            activePlayers.push({
+                "playerOne": waitingUser,
+                "GameId": id,
+            });
+            activePlayers.push({
+                "playerTwo": readyUser,
+                "GameId": id,
+            });
+            const game = new Game(id, waitingUser, readyUser);
+            games.push(game);
+
+            /* Notify the players that the game is starting */
+            console.log("I emitted to ", waitingUser, readyUser);
+            socket.to(id).emit('start');
+            socket.emit('start');
+            waitingUser = "";
+            id++;
+        }
+    });
+
+    /**
+     * @attention I have to check if the user will not call this function first
+     */
+    socket.on('ready', async () => {
+        console.log("One user is ready! ", socket.id);
+        if (numOfReady === 0) {
+            numOfReady++;
+        } else {
+            games[0].startGame();
+
+            setInterval(() => {
+                // console.log("I emitted to ", games[0].playerOne.id, games[0].playerTwo.id);
+                socket.to(games[0].playerOne.id).emit('gameState', games[0].gameInfo);
+                socket.to(games[0].playerTwo.id).emit('gameState', games[0].gameInfo);
+                socket.emit('gameState', games[0].gameInfo);
+            }, 1000 / 60);
+        }
     });
 
     socket.on('keyDown', async (data) => {
-        switch (data) {
-            case 'w':
-                game.playerOne.buttons.pressUp();
-                break;
-            case 's':
-                game.playerOne.buttons.pressDown();
-                break;
-            case 'a':
-                game.playerOne.buttons.pressLeft();
-                break;
-            case 'd':
-                game.playerOne.buttons.pressRight();
-                break;
-            case 'ArrowUp':
-                game.playerTwo.buttons.pressUp();
-                break;
-            case 'ArrowDown':
-                game.playerTwo.buttons.pressDown();
-                break;
-            case 'ArrowLeft':
-                game.playerTwo.buttons.pressLeft();
-                break;
-            case 'ArrowRight':
-                game.playerTwo.buttons.pressRight();
-                break;
-            case 'h':
-                game.playerOne.buttons.pressRotateLeft();
-                break;
-            case 'j':
-                game.playerOne.buttons.pressRotateRight();
-                break;
-            case ' ':
-                game.playerOne.buttons.pressShoot();
-                break;
-            default:
-                break;
+        if (activePlayers.some(player => player.playerOne === socket.id)) {
+            games[0].button_event(socket.id, data, "pressed");
+        } else if (activePlayers.some(player => player.playerTwo === socket.id)) {
+            games[0].button_event(socket.id, data, "pressed");
         }
     });
 
     socket.on('keyUp', async (data) => {
-        switch (data) {
-            case 'w':
-                game.playerOne.buttons.releaseUp();
-                break;
-            case 's':
-                game.playerOne.buttons.releaseDown();
-                break;
-            case 'a':
-                game.playerOne.buttons.releaseLeft();
-                break;
-            case 'd':
-                game.playerOne.buttons.releaseRight();
-                break;
-            case 'ArrowUp':
-                game.playerTwo.buttons.releaseUp();
-                break;
-            case 'ArrowDown':
-                game.playerTwo.buttons.releaseDown();
-                break;
-            case 'ArrowLeft':
-                game.playerTwo.buttons.releaseLeft();
-                break;
-            case 'ArrowRight':
-                game.playerTwo.buttons.releaseRight();
-                break;
-            case 'h':
-                game.playerOne.buttons.releaseRotateLeft();
-                break;
-            case 'j':
-                game.playerOne.buttons.releaseRotateRight();
-                break;
-            case ' ':
-                game.playerOne.buttons.releaseShoot();
-                break;
-            default:
-                break;
+        if (activePlayers.some(player => player.playerOne === socket.id)) {
+            games[0].button_event(socket.id, data, "released");
+        } else if (activePlayers.some(player => player.playerTwo === socket.id)) {
+            games[0].button_event(socket.id, data, "released");
         }
     });
 
@@ -111,24 +92,14 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log('user disconnected: ', socket.id);
     });
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(new URL('./game.html', import.meta.url).pathname)
+    res.sendFile(new URL('./game.html', import.meta.url).pathname);
 });
 
 server.listen(3001, () => {
     console.log('Server is running on port 3001');
 });
-
-
-/* ************************************************************************** */
-/* 	Express server setup */
-/* ************************************************************************** */
-
-
-// app.get('/game', (req, res) => {
-//     res.sendFile(new URL('./game.html', import.meta.url).pathname)
-// });

@@ -92,11 +92,14 @@
 
         socket.emit('start');
 
-        socket.on('gameState', (gameState) => {
-            // Update game elements using gameState data
-            console.log("The front received the gameState from the server.");
+        socket.on('start', () => {
+            console.log('Connected to the Socket.IO server. ', socket.id);
+            socket.emit('ready');
+        });
 
-            console.log(gameState);
+        socket.on('gameState', (gameState) => {
+
+            console.log("I started to recevie game state");
             ball.style.left = gameState.ball.x * gameScale + 'px';
             ball.style.top = gameState.ball.y * gameScale + 'px';
             ball.style.width = gameState.ball.radius * gameScale + 'px';
@@ -114,15 +117,18 @@
             paddleRight.style.width = gameState.playerTwo.width * gameScale + 'px';
             paddleRight.style.height = gameState.playerTwo.height * gameScale + 'px';
             paddleRight.style.transform = 'translate(-50%, -50%)' + 'rotate(' + gameState.playerTwo.angle + 'deg)';
+            paddleRight.style.backgroundColor = getColorBasedOnValue(gameState.playerTwo.attack);
         });
 
         // Add a keydown event listener to detect key press
         document.addEventListener("keydown", function (event) {
+            console.log(event.key);
             socket.emit('keyDown', event.key);
         });
 
         // Add a keyup event listener to detect key release
         document.addEventListener("keyup", function (event) {
+            console.log(event.key);
             socket.emit('keyUp', event.key);
         });
 
@@ -132,7 +138,7 @@
 
         function getColorBasedOnValue(value) {
             // Ensure the value is within the valid range (1 to 100)
-            value = Math.max(1, Math.min(100, value));
+            value = Math.max(1, Math.min(100, value - 10));
 
             // Calculate the red component of the color
             const red = 255 - (value - 1) * 2.55;

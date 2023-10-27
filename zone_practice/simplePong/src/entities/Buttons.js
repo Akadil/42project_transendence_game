@@ -1,6 +1,7 @@
 import { ButtonState } from "./states/ButtonState.js";
 
 export class Buttons {
+
     constructor(activateSide = 0, activateRotation = 0, activateShoot = 0) {
         this._up = ButtonState.UP;
         this._down = ButtonState.UP;
@@ -26,21 +27,80 @@ export class Buttons {
         }
     }
 
-    pressUp() { this._up = ButtonState.DOWN; }
-    pressDown() { this._down = ButtonState.DOWN; }
-    pressRight() { this._right = ButtonState.DOWN; }
-    pressLeft() { this._left = ButtonState.DOWN; }
-    pressRotateLeft() { this._rotateLeft = ButtonState.DOWN; }
-    pressRotateRight() { this._rotateRight = ButtonState.DOWN; }
-    pressShoot() { this._shoot = ButtonState.DOWN; }
+    /* ********************************************************************** */
+    /* Button interactions */
+    /* ********************************************************************** */
+    pressUp() {
+        if (this._up !== ButtonState.DISABLED) {
+            this._up = ButtonState.DOWN;
+        }
+    }
+    pressDown() {
+        if (this._down !== ButtonState.DISABLED) {
+            this._down = ButtonState.DOWN;
+        }
+    }
+    pressRight() {
+        if (this._right !== ButtonState.DISABLED) {
+            this._right = ButtonState.DOWN;
+        }
+    }
+    pressLeft() {
+        if (this._left !== ButtonState.DISABLED) {
+            this._left = ButtonState.DOWN;
+        }
+    }
+    pressRotateLeft() {
+        if (this._rotateLeft !== ButtonState.DISABLED) {
+            this._rotateLeft = ButtonState.DOWN;
+        }
+    }
+    pressRotateRight() {
+        if (this._rotateRight !== ButtonState.DISABLED) {
+            this._rotateRight = ButtonState.DOWN;
+        }
+    }
+    pressShoot() {
+        if (this._shoot !== ButtonState.DISABLED) {
+            this._shoot = ButtonState.DOWN;
+        }
+    }
 
-    releaseUp() { this._up = ButtonState.UP; }
-    releaseDown() { this._down = ButtonState.UP; }
-    releaseRight() { this._right = ButtonState.UP; }
-    releaseLeft() { this._left = ButtonState.UP; }
-    releaseRotateLeft() { this._rotateLeft = ButtonState.UP; }
-    releaseRotateRight() { this._rotateRight = ButtonState.UP; }
-    releaseShoot() { this._shoot = ButtonState.UP; }
+    releaseUp() {
+        if (this._up !== ButtonState.DISABLED) {
+            this._up = ButtonState.UP;
+        }
+    }
+    releaseDown() {
+        if (this._down !== ButtonState.DISABLED) {
+            this._down = ButtonState.UP;
+        }
+    }
+    releaseRight() {
+        if (this._right !== ButtonState.DISABLED) {
+            this._right = ButtonState.UP;
+        }
+    }
+    releaseLeft() {
+        if (this._left !== ButtonState.DISABLED) {
+            this._left = ButtonState.UP;
+        }
+    }
+    releaseRotateLeft() {
+        if (this._rotateLeft !== ButtonState.DISABLED) {
+            this._rotateLeft = ButtonState.UP;
+        }
+    }
+    releaseRotateRight() {
+        if (this._rotateRight !== ButtonState.DISABLED) {
+            this._rotateRight = ButtonState.UP;
+        }
+    }
+    releaseShoot() {
+        if (this._shoot !== ButtonState.DISABLED) {
+            this._shoot = ButtonState.UP;
+        }
+    }
 
     /* ********************************************************************** */
     /* Getters and Setters */
@@ -54,11 +114,11 @@ export class Buttons {
     get rotateRight() { return this._rotateRight; }
     get shoot() { return this._shoot; }
 
-    set up(value) { this._up = value; }
-    set down(value) { this._down = value; }
-    set right(value) { this._right = value; }
-    set left(value) { this._left = value; }
-    set rotateLeft(value) { this._rotateLeft = value; }
-    set rotateRight(value) { this._rotateRight = value; }
-    set shoot(value) { this._shoot = value; }
+    // set up(value) { this._up = value; }
+    // set down(value) { this._down = value; }
+    // set right(value) { this._right = value; }
+    // set left(value) { this._left = value; }
+    // set rotateLeft(value) { this._rotateLeft = value; }
+    // set rotateRight(value) { this._rotateRight = value; }
+    // set shoot(value) { this._shoot = value; }
 }

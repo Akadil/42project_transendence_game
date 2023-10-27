@@ -4,12 +4,28 @@ import { GameState } from "./states/GameState.js";
 import { PlayState } from "./states/PlayState.js";
 import { Court } from "./Court.js";
 
+/**
+ * @param   id          The id of the game
+ * @param   playerOneId The id of the first player (socket id)
+ * @param   playerTwoId The id of the second player (socket id)
+ * @param   maxScore    The maximum score of the game
+ * @param   courtWidth  
+ * @param   courtHeight The height of the court
+ * 
+ * =============================================================================
+ * 
+ * @attention  The game assume that width is greater than height
+ * 
+ * @work    I have to implement the functionality for the game to be able to 
+ *          use buttons
+ */
 export class Game {
-    constructor(maxScore, courtWidth = 1, courtHeight = 0.5) {
-        this._court = new Court(this, courtWidth, courtHeight);
+    constructor(id, playerOneId, playerTwoId, maxScore = 7, courtScale = 0.5) {
+        this._id = id;
+        this._court = new Court(this, 1, this.checkScale(courtScale));
 
-        this._playerOne = new Paddle(this, "playerOne");
-        this._playerTwo = new Paddle(this, "playerTwo");
+        this._playerOne = new Paddle(this, playerOneId, "playerOne");
+        this._playerTwo = new Paddle(this, playerTwoId, "playerTwo");
 
         this._ball = new Ball(this);  // Fix the radius of the ball
         this._playerOneScore = 0;
@@ -39,8 +55,6 @@ export class Game {
         this._playerTwo.update();         // depends on the button state
         this._ball.update();              // depends on the playState
 
-        // console.log("The ball info: ", this._ball.x, this._ball.y, this._ball.direction.x, this._ball.direction.y);
-
         // if (this._court.isPlayerOneScored()) {
         //     this._playerOneScore++;
         //     this._playState = PlayState.SERVE_PLAYER_TWO;
@@ -53,80 +67,112 @@ export class Game {
         // }
     }
 
-    button_pressed(player, button) {
-        let pl;
+    /**
+     * 
+     * @param {*} playerId  The id of the player who pressed the button
+     * @param {*} button    The button that is pressed {w, a, s, d, q, e, space}
+     * @param {*} event     is it pressed or released {pressed, released}
+     */
+    button_event(playerId, button, event) {
+        let player;
 
-        if (player === "playerOne") {
-            pl = this._playerOne;
-        } else if (player === "playerTwo") {
-            pl = this._playerTwo;
+        if (playerId === this._playerOne.id) {
+            player = this._playerOne;
+        } else if (playerId === this._playerTwo.id) {
+            player = this._playerTwo;
         } else {
+            return;
+        }
+        console.log("Button event: ", playerId, button, event);
+        if (!this.isValidEvent(event) || !this.isValidKeyboard(button)) {
             return;
         }
 
         switch (button) {
-            case "up":
-                pl._buttons.pressUp();
+            case "w":
+                if (event === "pressed") {
+                    player.buttons.pressUp();
+                } else if (event === "released") {
+                    player.buttons.releaseUp();
+                }
                 break;
-            case "down":
-                pl._buttons.pressDown();
+
+            case "s":
+                if (event === "pressed") {
+                    player.buttons.pressDown();
+                } else if (event === "released") {
+                    player.buttons.releaseDown();
+                }
                 break;
-            case "left":
-                pl._buttons.pressLeft();
+
+            case "a":
+                if (event === "pressed") {
+                    player.buttons.pressLeft();
+                } else if (event === "released") {
+                    player.buttons.releaseLeft();
+                }
                 break;
-            case "right":
-                pl._buttons.pressRight();
+
+            case "d":
+                if (event === "pressed") {
+                    player.buttons.pressRight();
+                } else if (event === "released") {
+                    player.buttons.releaseRight();
+                }
                 break;
-            case "rotateLeft":
-                pl._buttons.pressRotateLeft();
+
+            case "j":
+                if (event === "pressed") {
+                    player.buttons.pressRotateLeft();
+                } else if (event === "released") {
+                    player.buttons.releaseRotateLeft();
+                }
                 break;
-            case "rotateRight":
-                pl._buttons.pressRotateRight();
+
+            case "n":
+                if (event === "pressed") {
+                    player.buttons.pressRotateRight();
+                } else if (event === "released") {
+                    player.buttons.releaseRotateRight();
+                }
                 break;
-            case "shoot":
-                pl._buttons.pressShoot();
+
+            case " ":
+                if (event === "pressed") {
+                    player.buttons.pressShoot();
+                } else if (event === "released") {
+                    player.buttons.releaseShoot();
+                }
                 break;
             default:
-                break;
         }
     }
 
-    button_released(player, button) {
-        let pl;
-
-        if (player === "playerOne") {
-            pl = this._playerOne;
-        } else if (player === "playerTwo") {
-            pl = this._playerTwo;
+    /* ********************************************************************** */
+    /* Helper Functions */
+    /* ********************************************************************** */
+    /**
+     * @brief   Check if the scale is in the range of 0.1 to 1
+     */
+    checkScale(scale) {
+        if (scale < 0.1) {
+            return 0.1;
+        } else if (scale > 1) {
+            return 1;
         } else {
-            return;
+            return scale;
         }
+    }
 
-        switch (button) {
-            case "up":
-                pl._buttons.releaseUp();
-                break;
-            case "down":
-                pl._buttons.releaseDown();
-                break;
-            case "left":
-                pl._buttons.releaseLeft();
-                break;
-            case "right":
-                pl._buttons.releaseRight();
-                break;
-            case "rotateLeft":
-                pl._buttons.releaseRotateLeft();
-                break;
-            case "rotateRight":
-                pl._buttons.releaseRotateRight();
-                break;
-            case "shoot":
-                pl._buttons.releaseShoot();
-                break;
-            default:
-                break;
-        }
+    isValidKeyboard(button) {
+        return button === "w" || button === "s" ||
+            button === "a" || button === "d" ||
+            button === "j" || button === "n" ||
+            button === " ";
+    }
+
+    isValidEvent(event) {
+        return event === "pressed" || event === "released";
     }
 
 
@@ -134,6 +180,7 @@ export class Game {
     /* Getteres and Setters */
     /* ********************************************************************** */
 
+    get id() { return this._id; }
     get court() { return this._court; }
     get playerOne() { return this._playerOne; }
     get playerTwo() { return this._playerTwo; }
