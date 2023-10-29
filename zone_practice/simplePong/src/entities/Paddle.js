@@ -151,7 +151,7 @@ export class Paddle {
     }
 
     /**
-     * @attention   My fucking implementation!
+     * @attention   My fucking own implementation!
      */
     isPointInside(x, y, radius) {
         const hypoVec = new Vector(x - this._position.x, y - this._position.y);

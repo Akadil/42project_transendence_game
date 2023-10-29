@@ -2,7 +2,6 @@ import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { Game } from "./entities/Game.js";
-import { read } from 'node:fs';
 
 const app = express();
 const server = createServer(app);
@@ -12,40 +11,45 @@ const io = new Server(server, {
 
 // const game = new Game(10);
 let waitingUser = "";
-let readyUser = "";
-const activePlayers = [];
-const games = [];
-let id = 0;
-let numOfReady = 0;
+const games = [{
+    "id": -1,
+    "game": -1,
+    "room": -1,
+    "playerOne": "",
+    "playerOneReady": false,
+    "playerTwo": "",
+    "playerTwoReady": false,
+    "isLive": false
+}];
+let id = 1;
 
 io.on('connection', async (socket) => {
 
-    console.log('a user connected. Socket id: ' + socket.id);
+    // console.log('a user connected. Socket id: ' + socket.id);
     socket.on('start', async () => {
-        console.log("One user is about to start! ", socket.id)
         if (waitingUser === "") {
             waitingUser = socket.id;
             socket.join(id);
         } else {
-            readyUser = socket.id;
             socket.join(id);
 
             /* Create a new game */
-            activePlayers.push({
+            const game = new Game(id, waitingUser, socket.id);
+            console.log(`The game ${id} has been joined by ${waitingUser} and ${socket.id}!`);
+
+            games.push({
+                "id": id,
+                "game": game,
+                "room": id,
                 "playerOne": waitingUser,
-                "GameId": id,
+                "playerOneReady": false,
+                "playerTwo": socket.id,
+                "playerTwoReady": false,
+                "isLive": false
             });
-            activePlayers.push({
-                "playerTwo": readyUser,
-                "GameId": id,
-            });
-            const game = new Game(id, waitingUser, readyUser);
-            games.push(game);
 
             /* Notify the players that the game is starting */
-            console.log("I emitted to ", waitingUser, readyUser);
-            socket.to(id).emit('start');
-            socket.emit('start');
+            io.to(id).emit('start', { "room": id });
             waitingUser = "";
             id++;
         }
@@ -54,36 +58,82 @@ io.on('connection', async (socket) => {
     /**
      * @attention I have to check if the user will not call this function first
      */
-    socket.on('ready', async () => {
-        console.log("One user is ready! ", socket.id);
-        if (numOfReady === 0) {
-            numOfReady++;
-        } else {
-            games[0].startGame();
+    socket.on('ready', (data) => {
 
-            setInterval(() => {
-                // console.log("I emitted to ", games[0].playerOne.id, games[0].playerTwo.id);
-                socket.to(games[0].playerOne.id).emit('gameState', games[0].gameInfo);
-                socket.to(games[0].playerTwo.id).emit('gameState', games[0].gameInfo);
-                socket.emit('gameState', games[0].gameInfo);
-            }, 1000 / 60);
+        if (!data || !("room" in data)) {
+            console.log("The data is not valid!");
+            return;
+            // } else if (games.some(game => game.room != data.room)) {
+        } else if (!games[data.room]) {
+            console.log("The game is not valid!");
+            return;
+        } else if (
+            socket.id !== games[data.room].playerOne &&
+            socket.id !== games[data.room].playerTwo
+        ) {
+            console.log("The user is not valid!");
+            return;
+        }
+
+        console.log(`The user ${socket.id} is ready!`);
+        let gameId = data.room;
+        const game = games[gameId];
+
+        /* Conditions to start the game */
+        if (game.isLive === false) {
+            if (game.playerOneReady !== true && game.playerOne === socket.id) {
+                game.playerOneReady = true;
+            }
+            else if (game.playerTwoReady !== true && game.playerTwo === socket.id) {
+                game.playerTwoReady = true;
+            }
+
+            if (game.playerOneReady && game.playerTwoReady) {
+                console.log(`The game ${gameId} has started!`);
+                game.isLive = true;
+                game.game.startGame();
+                setInterval(() => {
+                    io.to(gameId).emit('gameState', game.game.liveInfo);
+                }, 1000 / 60);
+            }
         }
     });
 
+    /**
+     * data = { "room": id, "key": key }
+     */
     socket.on('keyDown', async (data) => {
-        if (activePlayers.some(player => player.playerOne === socket.id)) {
-            games[0].button_event(socket.id, data, "pressed");
-        } else if (activePlayers.some(player => player.playerTwo === socket.id)) {
-            games[0].button_event(socket.id, data, "pressed");
+        if (!data || !("room" in data) || !("key" in data)) {
+            return;
+        } else if (!games[data.room]) {
+            return;
+        } else if (games[data.room].isLive === false) {
+            return;
+        } else if (
+            socket.id !== games[data.room].playerOne &&
+            socket.id !== games[data.room].playerTwo
+        ) {
+            return;
         }
+
+        games[data.room].game.button_event(socket.id, data.key, "pressed");
     });
 
     socket.on('keyUp', async (data) => {
-        if (activePlayers.some(player => player.playerOne === socket.id)) {
-            games[0].button_event(socket.id, data, "released");
-        } else if (activePlayers.some(player => player.playerTwo === socket.id)) {
-            games[0].button_event(socket.id, data, "released");
+        if (!data || !("room" in data) || !("key" in data)) {
+            return;
+        } else if (!games[data.room]) {
+            return;
+        } else if (games[data.room].isLive === false) {
+            return;
+        } else if (
+            socket.id !== games[data.room].playerOne &&
+            socket.id !== games[data.room].playerTwo
+        ) {
+            return;
         }
+
+        games[data.room].game.button_event(socket.id, data.key, "released");
     });
 
     socket.on('pause', async () => {
@@ -92,7 +142,7 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('user disconnected: ', socket.id);
+        // console.log('user disconnected: ', socket.id);
     });
 });
 

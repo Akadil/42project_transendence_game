@@ -1,8 +1,12 @@
+
+/**
+ * @brief   The class to control 
+ */
 export class Court {
-    constructor(game, width = 1, height = 0.5) {
+    constructor(game, scale) {
         this._game = game;
-        this._width = width;
-        this._height = height;
+        this._width = 1;
+        this._height = scale;
     }
 
     isOccupiedByPaddle(x, y, radius) {

@@ -20,9 +20,9 @@ import { Court } from "./Court.js";
  *          use buttons
  */
 export class Game {
-    constructor(id, playerOneId, playerTwoId, maxScore = 7, courtScale = 0.5) {
+    constructor(id, playerOneId, playerTwoId, maxScore = 3, courtScale = 0.5) {
         this._id = id;
-        this._court = new Court(this, 1, this.checkScale(courtScale));
+        this._court = new Court(this, this.checkScale(courtScale));
 
         this._playerOne = new Paddle(this, playerOneId, "playerOne");
         this._playerTwo = new Paddle(this, playerTwoId, "playerTwo");
@@ -31,40 +31,52 @@ export class Game {
         this._playerOneScore = 0;
         this._playerTwoScore = 0;
         this._maxScore = maxScore;
-        this._gameState = GameState.PLAYING;
+        this._gameState = GameState.MENU;
         this._playState = PlayState.SERVE_PLAYER_ONE;
         this._gameLoop = null;
+        this._startTime = null;
+        this._endTime = null;
     }
 
     startGame() {
         this._gameLoop = setInterval(() => {
             this.updateGame();
         }, 1000 / 60);
+        this._gameState = GameState.PLAYING;
+        this._startTime = new Date();
     }
 
     pauseGame() {
-        clearInterval(this._gameLoop);
+        this._gameState = GameState.MENU;
     }
 
     unPauseGame() {
-        this.startGame();
+        this._gameState = GameState.PLAYING;
     }
 
     updateGame() {
-        this._playerOne.update();         // depends on the button state
-        this._playerTwo.update();         // depends on the button state
-        this._ball.update();              // depends on the playState
-
-        // if (this._court.isPlayerOneScored()) {
-        //     this._playerOneScore++;
-        //     this._playState = PlayState.SERVE_PLAYER_TWO;
-        // } else if (this._court.isPlayerTwoScored()) {
-        //     this._playerTwoScore++;
-        //     this._playState = PlayState.SERVE_PLAYER_ONE;
-        // }
-        // if (this._playerOneScore >= this._maxScore || this._playerTwoScore >= this._maxScore) {
-        //     this._gameState = GameState.GAME_OVER;
-        // }
+        if (this._gameState === GameState.PLAYING) {
+            this._playerOne.update();         // depends on the button state
+            this._playerTwo.update();         // depends on the button state
+            this._ball.update();              // depends on the play state
+        }
+        if (this._court.isPlayerOneScored()) {
+            this._playerOneScore++;
+            if (this._playerOneScore === this._maxScore) {
+                this._gameState = GameState.GAME_OVER;
+                clearInterval(this._gameLoop);
+            } else {
+                this._playState = PlayState.SERVE_PLAYER_TWO;
+            }
+        } else if (this._court.isPlayerTwoScored()) {
+            this._playerTwoScore++;
+            if (this._playerTwoScore === this._maxScore) {
+                this._gameState = GameState.GAME_OVER;
+                clearInterval(this._gameLoop);
+            } else {
+                this._playState = PlayState.SERVE_PLAYER_ONE;
+            }
+        }
     }
 
     /**
@@ -83,7 +95,6 @@ export class Game {
         } else {
             return;
         }
-        console.log("Button event: ", playerId, button, event);
         if (!this.isValidEvent(event) || !this.isValidKeyboard(button)) {
             return;
         }
@@ -148,6 +159,7 @@ export class Game {
         }
     }
 
+
     /* ********************************************************************** */
     /* Helper Functions */
     /* ********************************************************************** */
@@ -192,7 +204,7 @@ export class Game {
     set gameState(value) { this._gameState = value; }
     set playState(value) { this._playState = value; }
 
-    get gameInfo() {
+    get liveInfo() {
         return {
             "gameState": this._gameState,
             "ball": {
@@ -223,5 +235,28 @@ export class Game {
             },
             "playState": this._playState,
         }
+    };
+
+    get gameInfo() {
+        let result = {
+            "gameState": this._gameState,
+            "playerOne": {
+                "id": this._playerOne.id,
+                "score": this._playerOneScore,
+            },
+            "playerTwo": {
+                "id": this._playerTwo.id,
+                "score": this._playerTwoScore,
+            },
+            "winner": "",
+        };
+        if (this._gameState === GameState.GAME_OVER) {
+            if (this._playerOneScore > this._playerTwoScore) {
+                result.winner = this._playerOne.id;
+            } else {
+                result.winner = this._playerTwo.id;
+            }
+        }
+        return result;
     };
 }

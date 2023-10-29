@@ -73,6 +73,9 @@
 <body>
     <!-- <canvas id="gameCanvas" width="400" height="200"></canvas> -->
     <div id="game">
+        <div class="scoreboard" id="scoreboard">
+            Player 1: <span id="playerOneScore">0</span> - Player 2: <span id="playerTwoScore">0</span>
+        </div>
         <div class="ball" id="ball"></div>
         <div class="paddle" id="paddleLeft"></div>
         <div class="paddle" id="paddleRight"></div>
@@ -84,17 +87,24 @@
         const paddleLeft = document.getElementById('paddleLeft');
         const paddleRight = document.getElementById('paddleRight');
         const game = document.getElementById("game");
+        const playerOneScoreElement = document.getElementById("playerOneScore");
+        const playerTwoScoreElement = document.getElementById("playerTwoScore");
 
         let gameScale = game.offsetWidth;
+        let roomId = "";
 
         // Connect to the Socket.IO server
         const socket = io();
 
         socket.emit('start');
 
-        socket.on('start', () => {
+        /**
+         * data: { "room" }
+         */
+        socket.on('start', (data) => {
             console.log('Connected to the Socket.IO server. ', socket.id);
-            socket.emit('ready');
+            roomId = data.room;
+            socket.emit('ready', { "room": roomId });
         });
 
         socket.on('gameState', (gameState) => {
@@ -111,6 +121,7 @@
             paddleLeft.style.height = gameState.playerOne.height * gameScale + 'px';
             paddleLeft.style.transform = 'translate(-50%, -50%)' + 'rotate(' + gameState.playerOne.angle + 'deg)';
             paddleLeft.style.backgroundColor = getColorBasedOnValue(gameState.playerOne.attack);
+            playerOneScoreElement.innerHTML = gameState.playerOne.score;
 
             paddleRight.style.top = gameState.playerTwo.y * gameScale + 'px';
             paddleRight.style.left = gameState.playerTwo.x * gameScale + 'px';
@@ -118,18 +129,17 @@
             paddleRight.style.height = gameState.playerTwo.height * gameScale + 'px';
             paddleRight.style.transform = 'translate(-50%, -50%)' + 'rotate(' + gameState.playerTwo.angle + 'deg)';
             paddleRight.style.backgroundColor = getColorBasedOnValue(gameState.playerTwo.attack);
+            playerTwoScoreElement.innerHTML = gameState.playerTwo.score;
         });
 
         // Add a keydown event listener to detect key press
         document.addEventListener("keydown", function (event) {
-            console.log(event.key);
-            socket.emit('keyDown', event.key);
+            socket.emit('keyDown', { "room": roomId, "key": event.key });
         });
 
         // Add a keyup event listener to detect key release
         document.addEventListener("keyup", function (event) {
-            console.log(event.key);
-            socket.emit('keyUp', event.key);
+            socket.emit('keyUp', { "room": roomId, "key": event.key });
         });
 
         socket.on('disconnect', () => {
