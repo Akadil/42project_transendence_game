@@ -181,7 +181,7 @@ export class Paddle {
         return false;
     }
 
-    refreshAttack() {
+    reset() {
         this._attack = this._defaultAttack;
     }
 

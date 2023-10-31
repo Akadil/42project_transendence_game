@@ -79,7 +79,7 @@ export class Ball {
                 } else {
                     this.rebound(obstacle);
                     this._speed = this._speed + this._speed * obstacle.attack / 100 * 2;
-                    obstacle.refreshAttack();
+                    obstacle.reset();
                 }
             }
         }
@@ -109,6 +109,10 @@ export class Ball {
             this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
         else
             this._game.playState = PlayState.TOWARDS_PLAYER_ONE;
+    }
+
+    reset() {
+        this._speed = this._defaultSpeed;
     }
 
     /**

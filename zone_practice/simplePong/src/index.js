@@ -4,12 +4,15 @@ import { Server } from 'socket.io';
 import { Game } from "./entities/Game.js";
 
 const app = express();
+
 const server = createServer(app);
 const io = new Server(server, {
     connectionStateRecovery: {},
+    cors: {
+        origin: '*',
+    }
 });
 
-// const game = new Game(10);
 let waitingUser = "";
 const games = [{
     "id": -1,
@@ -25,7 +28,7 @@ let id = 1;
 
 io.on('connection', async (socket) => {
 
-    // console.log('a user connected. Socket id: ' + socket.id);
+    console.log('a user connected. Socket id: ' + socket.id);
     socket.on('start', async () => {
         if (waitingUser === "") {
             waitingUser = socket.id;
@@ -107,12 +110,12 @@ io.on('connection', async (socket) => {
             return;
         } else if (!games[data.room]) {
             return;
-        } else if (games[data.room].isLive === false) {
-            return;
         } else if (
             socket.id !== games[data.room].playerOne &&
             socket.id !== games[data.room].playerTwo
         ) {
+            return;
+        } else if (games[data.room].isLive === false) {
             return;
         }
 

@@ -20,7 +20,7 @@ import { Court } from "./Court.js";
  *          use buttons
  */
 export class Game {
-    constructor(id, playerOneId, playerTwoId, maxScore = 3, courtScale = 0.5) {
+    constructor(id, playerOneId, playerTwoId, maxScore = 7, courtScale = 0.5) {
         this._id = id;
         this._court = new Court(this, this.checkScale(courtScale));
 
@@ -68,14 +68,21 @@ export class Game {
             } else {
                 this._playState = PlayState.SERVE_PLAYER_TWO;
             }
+            this._ball.reset();
+            this._playerOne.reset();
+            this._playerTwo.reset();
         } else if (this._court.isPlayerTwoScored()) {
             this._playerTwoScore++;
             if (this._playerTwoScore === this._maxScore) {
                 this._gameState = GameState.GAME_OVER;
                 clearInterval(this._gameLoop);
+
             } else {
                 this._playState = PlayState.SERVE_PLAYER_ONE;
             }
+            this._ball.reset();
+            this._playerOne.reset();
+            this._playerTwo.reset();
         }
     }
 
@@ -155,6 +162,19 @@ export class Game {
                     player.buttons.releaseShoot();
                 }
                 break;
+
+            case "p":
+                if (event === "pressed") {
+                    player.buttons.pressPause();
+                } else if (event === "released") {
+                    player.buttons.releasePause();
+                    if (this._gameState === GameState.PLAYING) {
+                        this._gameState = GameState.MENU;
+                    } else if (this._gameState === GameState.MENU) {
+                        this._gameState = GameState.PLAYING;
+                    }
+                }
+                break;
             default:
         }
     }
@@ -180,7 +200,7 @@ export class Game {
         return button === "w" || button === "s" ||
             button === "a" || button === "d" ||
             button === "j" || button === "n" ||
-            button === " ";
+            button === " " || button === "p";
     }
 
     isValidEvent(event) {

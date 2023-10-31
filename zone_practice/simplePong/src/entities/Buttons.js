@@ -5,6 +5,7 @@ export class Buttons {
     constructor(activateSide = 0, activateRotation = 0, activateShoot = 0) {
         this._up = ButtonState.UP;
         this._down = ButtonState.UP;
+        this._pause = ButtonState.UP;
 
         if (activateSide === 1) {
             this._right = ButtonState.UP;
@@ -65,6 +66,11 @@ export class Buttons {
             this._shoot = ButtonState.DOWN;
         }
     }
+    pressPause() {
+        if (this._pause !== ButtonState.DISABLED) {
+            this._pause = ButtonState.DOWN;
+        }
+    }
 
     releaseUp() {
         if (this._up !== ButtonState.DISABLED) {
@@ -101,6 +107,11 @@ export class Buttons {
             this._shoot = ButtonState.UP;
         }
     }
+    releasePause() {
+        if (this._pause !== ButtonState.DISABLED) {
+            this._pause = ButtonState.UP;
+        }
+    }
 
     /* ********************************************************************** */
     /* Getters and Setters */
@@ -113,6 +124,7 @@ export class Buttons {
     get rotateLeft() { return this._rotateLeft; }
     get rotateRight() { return this._rotateRight; }
     get shoot() { return this._shoot; }
+    get pause() { return this._pause; }
 
     // set up(value) { this._up = value; }
     // set down(value) { this._down = value; }
