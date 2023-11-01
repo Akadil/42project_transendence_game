@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "In this project I am going to practice NestJS framework. I will follow the NestJS crash course on YouTube by Anson the Dev. The link to the video is https://www.youtube.com/watch?v=wqhNoDE6pb4&t=1s. ",
   "author": "Akadil Kalimoldayev",
-  "type": "module",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -31,6 +30,7 @@
     "@nestjs/platform-socket.io": "^10.2.7",
     "@nestjs/typeorm": "^10.0.0",
     "@nestjs/websockets": "^10.2.7",
+    "@prisma/client": "^5.5.2",
     "@socket.io/redis-adapter": "^8.2.1",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
@@ -65,6 +65,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.0.0",
+    "prisma": "^5.5.2",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",

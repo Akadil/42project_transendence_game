@@ -1,22 +1,21 @@
-import {
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { GameService } from './game.service';
 import { Server } from 'socket.io';
 
-@WebSocketGateway({
-  namespace: 'game',
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-})
+/**
+ * @brief   Manage the game gateway
+ */
+@WebSocketGateway(3031, { namespace: 'game' })
 export class GameGateway {
-  @WebSocketServer()
-  server: Server;
 
-  constructor() {
+	constructor(@WebSocketServer() private server: Server) {
+		console.log('GameGateway constructor');
+	}
 
-  }
+	@SubscribeMessage('start')
+	startGame(client: any, payload: any): string {
+		console.log('GameGateway handleJoin');
+		// return this.gameService.startGame(client, payload);
+		return 'start';
+	}
 }

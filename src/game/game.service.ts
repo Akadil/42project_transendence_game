@@ -1,26 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { CreateGameDto } from './dto/create-game.dto';
-import { UpdateGameDto } from './dto/update-game.dto';
+import { Court } from './objects/Court';
+import { Paddle } from './objects/Paddle';
+import { Ball } from './objects/Ball';
+import { GameState } from './objects/states/GameState';
+import { PlayState } from './objects/states/PlayState';
+
 
 @Injectable()
 export class GameService {
-  create(createGameDto: CreateGameDto) {
-    return 'This action adds a new game';
-  }
 
-  findAll() {
-    return `This action returns all game`;
-  }
+    /* Game attributes */
+    private _court: Court;
+    private _playerOne: Paddle;
+    private _playerTwo: Paddle;
+    private _ball: Ball;
 
-  findOne(id: number) {
-    return `This action returns a #${id} game`;
-  }
+    /* Game States */
+    private _gameState: GameState;
+    private _playState: PlayState;
+    private _playerOneScore: number;
+    private _playerTwoScore: number;
 
-  update(id: number, updateGameDto: UpdateGameDto) {
-    return `This action updates a #${id} game`;
-  }
+    /* Game Settings */
+    private _startDate: Date;
+    private _endDate: Date;
+    private _maxScore: number;
 
-  remove(id: number) {
-    return `This action removes a #${id} game`;
-  }
+    constructor() {
+        this._court = new Court();
+        this._playerOne = new Paddle();
+        this._playerTwo = new Paddle();
+        this._ball = new Ball();
+        this._gameState = GameState.MENU;
+        this._playState = PlayState.SERVE_PLAYER_ONE;
+        this._playerOneScore = 0;
+        this._playerTwoScore = 0;
+        this._startDate = new Date();
+        this._endDate = null;
+        this._maxScore = 10;
+    }
+
 }
