@@ -1,8 +1,19 @@
-import { ButtonState } from "./states/ButtonState.js";
+import { Injectable } from "@nestjs/common";
+import { ButtonState } from "./states/ButtonState";
 
+@Injectable()
 export class Buttons {
 
-    constructor(activateSide = 0, activateRotation = 0, activateShoot = 0) {
+    private _up: ButtonState;
+    private _down: ButtonState;
+    private _right: ButtonState;
+    private _left: ButtonState;
+    private _rotateLeft: ButtonState;
+    private _rotateRight: ButtonState;
+    private _shoot: ButtonState;
+    private _pause: ButtonState;
+
+    constructor(activateSide = 1, activateRotation = 1, activateShoot = 1) {
         this._up = ButtonState.UP;
         this._down = ButtonState.UP;
         this._pause = ButtonState.UP;

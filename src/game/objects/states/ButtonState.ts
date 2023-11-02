@@ -1,6 +1,6 @@
 export enum ButtonState {
-    UP,
-    DOWN,
-    Hover,
-    Disabled
+    UP = "UP",
+    DOWN = "DOWN",
+    HOVER = "Hover",
+    DISABLED = "Disabled",
 }

@@ -1,15 +1,24 @@
+import { Injectable } from "@nestjs/common";
+import { Game } from "../Game";
+import { Paddle } from "./Paddle";
 
 /**
  * @brief   The class to control 
  */
+@Injectable()
 export class Court {
-    constructor(game, scale) {
+
+    private _game: Game;
+    private _width: number = 1;
+    private _height: number;
+
+
+    constructor(game: Game, scale: number) {
         this._game = game;
-        this._width = 1;
         this._height = scale;
     }
 
-    isOccupiedByPaddle(x, y, radius) {
+    isOccupiedByPaddle(x: number, y: number, radius: number): Paddle | null {
         if (this._game.playerOne.isPointInside(x, y, radius)) {
             return this._game.playerOne;
         } else if (this._game.playerTwo.isPointInside(x, y, radius)) {
@@ -19,22 +28,22 @@ export class Court {
         }
     }
 
-    isPlayerOneScored() {
+    isPlayerOneScored(): boolean {
         return this._game.ball.x > this._width / 40 * 38;
     }
 
-    isPlayerTwoScored() {
+    isPlayerTwoScored(): boolean {
         return this._game.ball.x < this._width / 40 * 2;
     }
 
     /* ********************************************************************** */
     /* Getters and Setters */
     /* ********************************************************************** */
-    get width() {
+    get width(): number {
         return this._width;
     }
 
-    get height() {
+    get height(): number {
         return this._height;
     }
 }

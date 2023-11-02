@@ -1,8 +1,10 @@
-import { Buttons } from "./Buttons.js";
-import { Vector } from "./Vector.js";
-import { ButtonState } from "./states/ButtonState.js";
-import { GameState } from "./states/GameState.js";
-import { PlayState } from "./states/PlayState.js";
+import { Injectable } from "@nestjs/common";
+import { Game } from "../Game";
+import { Buttons } from "./Buttons";
+import { Vector } from "./Vector";
+import { ButtonState } from "./states/ButtonState";
+import { GameState } from "./states/GameState";
+import { PlayState } from "./states/PlayState";
 
 /**
  * @brief   Represents a paddle in the game.
@@ -12,17 +14,23 @@ import { PlayState } from "./states/PlayState.js";
  * @attention   I have to add the constraints for the paddle rotation
  * 
  */
+@Injectable()
 export class Paddle {
 
-    /**
-     * @attributes  _game       The game object
-     * @attributes  _position   The position of the paddle
-     * @attributes  _direction  The direction of the paddle
-     * @atrbiutes   _width      The width of the paddle
-     * @attributes  _height     The height of the paddle
-     * @attributes  _speed      The speed of the paddle
-     */
-    constructor(game, id, player) {
+    private _id: string;
+    private _game: Game;
+    private _name: string; /* playerOne playerTwo */
+    private _position: Vector;
+    private _direction: Vector;
+    private _buttons: Buttons;
+    private _width: number;
+    private _height: number;
+    private _speed: number;
+    private _rotationSpeed: number = 4;  // degrees
+    private _attack: number = 10;
+    private _defaultAttack: number = 10;
+
+    constructor(game: Game, id, player) {
         this._id = id;
         this._game = game;
         this._name = player; /* playerOne playerTwo */
@@ -45,9 +53,6 @@ export class Paddle {
         this._width = game.court.width / 80;
         this._height = game.court.width / 10;
         this._speed = game.court.width / 200;
-        this._rotationSpeed = 4;    // degrees
-        this._attack = 10;
-        this._defaultAttack = 10;
     }
 
     /**
@@ -153,7 +158,7 @@ export class Paddle {
     /**
      * @attention   My fucking own implementation!
      */
-    isPointInside(x, y, radius) {
+    isPointInside(x: number, y: number, radius: number): boolean {
         const hypoVec = new Vector(x - this._position.x, y - this._position.y);
         let cosAngle = 0;
         let sinAngle = 0;
@@ -188,13 +193,13 @@ export class Paddle {
     /* ********************************************************************** */
     /* Getters and Setters */
     /* ********************************************************************** */
-    get id() { return this._id; }
-    get position() { return this._position; }
-    get x() { return this._position.x; }
-    get y() { return this._position.y; }
-    get buttons() { return this._buttons; }
-    get attack() { return Math.floor(this._attack); }
-    get width() { return this._width; }
-    get height() { return this._height; }
-    get direction() { return this._direction; }
+    get id(): string { return this._id; }
+    get position(): Vector { return this._position; }
+    get x(): number { return this._position.x; }
+    get y(): number { return this._position.y; }
+    get buttons(): Buttons { return this._buttons; }
+    get attack(): number { return Math.floor(this._attack); }
+    get width(): number { return this._width; }
+    get height(): number { return this._height; }
+    get direction(): Vector { return this._direction; }
 }

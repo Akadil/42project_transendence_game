@@ -1,6 +1,9 @@
-import { Vector } from "./Vector.js";
-import { GameState } from "./states/GameState.js";
-import { PlayState } from "./states/PlayState.js";
+import { Injectable } from "@nestjs/common";
+import { Game } from "../Game";
+import { Vector } from "./Vector";
+import { GameState } from "./states/GameState";
+import { PlayState } from "./states/PlayState";
+import { Paddle } from "./Paddle.js";
 
 /**
  * @brief   The ball object
@@ -8,9 +11,17 @@ import { PlayState } from "./states/PlayState.js";
  * @attention   I still have some troubles with the size of the map
  * @attention   Add playState 
  */
+@Injectable()
 export class Ball {
 
-    constructor(game, radius = game.court.width / 40) {
+    private _game: Game;
+    private _position: Vector;
+    private _direction: Vector;
+    private _speed: number;
+    private _defaultSpeed: number;
+    private _radius: number;
+
+    constructor(game: Game, radius: number = game.court.width / 40) {
         this._game = game;
         this._position = new Vector(
             this._game.playerOne.x,
@@ -42,7 +53,7 @@ export class Ball {
 
             this._direction.x = this._game.playerOne.direction.x;
             this._direction.y = this._game.playerOne.direction.y;
-            this._game.playState == PlayState.TOWARDS_PLAYER_TWO;
+            // this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_TWO) {
             this._position.x = this._game.playerTwo.x +
@@ -53,7 +64,7 @@ export class Ball {
 
             this._direction.x = this._game.playerTwo.direction.x;
             this._direction.y = this._game.playerTwo.direction.y;
-            this._game.playState == PlayState.TOWARDS_PLAYER_TWO;
+            // this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
         }
         else {
             let newX = this._position.x + this._direction.x * this._speed;
@@ -92,7 +103,7 @@ export class Ball {
      * 
      * @formula     v2 = v1 - 2 * (v1 . n) * n
      */
-    rebound(object) {
+    rebound(object: Paddle) {
         let normVector = object.direction;
 
         let dotNotation = 2 * (this._direction.x * normVector.x +
@@ -118,17 +129,17 @@ export class Ball {
     /**
      * @brief   Getters and Setters
      */
-    get position() { return this._position; }
-    get x() { return this._position.x; }
-    get y() { return this._position.y; }
-    get radius() { return this._radius; }
-    get speed() { return this._speed; }
-    get direction() { return this._direction; }
+    get position(): Vector { return this._position; }
+    get x(): number { return this._position.x; }
+    get y(): number { return this._position.y; }
+    get radius(): number { return this._radius; }
+    get speed(): number { return this._speed; }
+    get direction(): Vector { return this._direction; }
 
-    set position(value) { this._position = value; }
-    set x(value) { this._position.x = value; }
-    set y(value) { this._position.y = value; }
-    set radius(value) { this._radius = value; }
-    set speed(value) { this._speed = value; }
-    set direction(value) { this._direction = value; }
+    set position(value: Vector) { this._position = value; }
+    set x(value: number) { this._position.x = value; }
+    set y(value: number) { this._position.y = value; }
+    set radius(value: number) { this._radius = value; }
+    set speed(value: number) { this._speed = value; }
+    set direction(value: Vector) { this._direction = value; }
 }
