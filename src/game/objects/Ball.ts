@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Game } from "../Game";
+import { Game } from "./Game";
 import { Vector } from "./Vector";
 import { GameState } from "./states/GameState";
 import { PlayState } from "./states/PlayState";
@@ -8,18 +8,16 @@ import { Paddle } from "./Paddle.js";
 /**
  * @brief   The ball object
  * 
- * @attention   I still have some troubles with the size of the map
- * @attention   Add playState 
  */
 @Injectable()
 export class Ball {
 
-    private _game: Game;
-    private _position: Vector;
-    private _direction: Vector;
-    private _speed: number;
-    private _defaultSpeed: number;
-    private _radius: number;
+    public _game: Game;
+    public _position: Vector;
+    public _direction: Vector;
+    public _speed: number;
+    public _defaultSpeed: number;
+    public _radius: number;
 
     constructor(game: Game, radius: number = game.court.width / 40) {
         this._game = game;
@@ -37,14 +35,33 @@ export class Ball {
      * @brief   Move the ball
      * 
      * @attention   this is the appoximate function, I have to make it more accurate
-     * @attention   The isOccupied is not working. I check the center of the ball
-     *              not the ball itself
      */
     update() {
+        /*  If the game is not on */
         if (this._game.gameState !== GameState.PLAYING) {
             return;
         }
-        else if (this._game.playState === PlayState.SERVE_PLAYER_ONE) {
+        
+        // The balls position depends on PlayState
+
+        if (this.isServingState() === true) {
+            let player: Paddle;
+
+            if (this._game.playState === PlayState.SERVE_PLAYER_ONE) {
+                player = this._game.playerOne;
+            } else {
+                player = this._game.playerTwo;
+            }
+
+            let distance = (player.width / 2 + this._radius / 2); 
+            this._position.x = player.x + (player.width / 2 + this._radius / 2) * player.direction.x;
+            this._position.y = player.y + (player.width / 2 + this._radius / 2) * player.direction.y;
+
+            this._direction.x = player.direction.x;
+            this._direction.y = player.direction.y;
+        }
+
+        if (this._game.playState === PlayState.SERVE_PLAYER_ONE) {
             this._position.x = this._game.playerOne.x +
                 (this._game.playerOne.width / 2 + this._radius / 2) * this._game.playerOne.direction.x;
 
@@ -53,7 +70,6 @@ export class Ball {
 
             this._direction.x = this._game.playerOne.direction.x;
             this._direction.y = this._game.playerOne.direction.y;
-            // this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
         }
         else if (this._game.playState === PlayState.SERVE_PLAYER_TWO) {
             this._position.x = this._game.playerTwo.x +
@@ -64,7 +80,6 @@ export class Ball {
 
             this._direction.x = this._game.playerTwo.direction.x;
             this._direction.y = this._game.playerTwo.direction.y;
-            // this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
         }
         else {
             let newX = this._position.x + this._direction.x * this._speed;
@@ -89,7 +104,7 @@ export class Ball {
                     this._position.y = newY;
                 } else {
                     this.rebound(obstacle);
-                    this._speed = this._speed + this._speed * obstacle.attack / 100 * 2;
+                    this._speed = this._speed + this._speed * obstacle.attackPower / 100 * 2;
                     obstacle.reset();
                 }
             }
@@ -114,6 +129,9 @@ export class Ball {
             this._direction.y *= -1;
             return;
         }
+        // if (object.isBot === true) {
+
+        // }
         this._direction.x = this._direction.x - dotNotation * (normVector.x / normVector.length);
         this._direction.y = this._direction.y - dotNotation * (normVector.y / normVector.length);
         if (this._game.playState === PlayState.TOWARDS_PLAYER_ONE)
@@ -124,6 +142,14 @@ export class Ball {
 
     reset() {
         this._speed = this._defaultSpeed;
+    }
+
+    isServingState() {
+        if (this._game.playState === PlayState.SERVE_PLAYER_ONE) 
+            return true;
+        if (this._game.playState === PlayState.SERVE_PLAYER_TWO)
+            return true;
+        return false;
     }
 
     /**

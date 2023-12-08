@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Game } from "./Game";
+import { Game } from "./objects/Game";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { GameInfoDto } from "./dto/game-info.dto";
 import { LiveInfoDto } from "./dto/live-info.dto";
@@ -19,6 +19,7 @@ import { UpdateGameDto } from "./dto/update-game.dto";
  * @todo    Add the game_history service 
  * @todo    Add possibility to stop the game
  * @todo    Check the performace of the this._games.find() function
+ * @todo    Close the access to gameInfo()
  */
 @Injectable()
 export class GameService {
@@ -40,28 +41,13 @@ export class GameService {
         return game.id;
     }
 
-    /**
-     * @brief   provide the information about the game
-     */
-    findOne(id: number): GameInfoDto {
-        const game = this._games.find(game => game.id === id);
-
-        if (game === undefined) {
-            return null;
-        } else {
-            return this.getGameInfo(game);
-        }
+    findOne(gameId: number): Game {
+        return this._games.find(game => game.id === gameId);
     }
 
-    findOneLive(id: number): LiveInfoDto {
-        const game = this._games.find(game => game.id === id);
-
-        if (game === undefined) {
-            return null;
-        } else {
-            return this.getLiveInfo(game);
-        }
-    }
+    // findAll(id: number): Game[] {
+    //     return this._games;
+    // }
 
     update(data: UpdateGameDto) {
         const game = this._games.find(game => game.id === data.id);
@@ -81,14 +67,11 @@ export class GameService {
      * @details Only the players can remove the game
      * @details If the game is still on, the game will be stored in history
      */
-    remove(id: number, socketId: string) {
+    remove(id: number) {
         const game = this._games.find(game => game.id === id);
 
         if (game === undefined)
             return;
-        else if (game.playerOne.id === socketId || game.playerTwo.id === socketId)
-            return;
-
         if (game.gameState === GameState.PLAYING) {
             game.finishGame();
 
@@ -101,64 +84,6 @@ export class GameService {
     /* ********************************************************************** */
     /*                              Private Methods                           */
     /* ********************************************************************** */
-    private getGameInfo(game: Game): GameInfoDto {
-        let result = {
-            "gameState": game.gameState,
-            "playerOne": {
-                "id": game.playerOne.id,
-                "score": game.playerOneScore,
-            },
-            "playerTwo": {
-                "id": game.playerTwo.id,
-                "score": game.playerTwoScore,
-            },
-            "winner": "",
-            "startDate": game.startDate,
-            "endDate": game.endDate
-        };
-        if (game.gameState === GameState.GAME_OVER) {
-            if (game.playerOneScore > game.playerTwoScore) {
-                result.winner = game.playerOne.id;
-            } else {
-                result.winner = game.playerTwo.id;
-            }
-        }
-        return result;
-    };
-
-    private getLiveInfo(game: Game): LiveInfoDto {
-        return {
-            "gameState": game.gameState,
-            "ball": {
-                "x": game.ball.x,
-                "y": game.ball.y,
-                "radius": game.ball.radius,
-                "directionX": game.ball.direction.x,
-                "directionY": game.ball.direction.y,
-                "directionAngle": game.ball.direction.angle
-            },
-            "playerOne": {
-                "score": game.playerOneScore,
-                "x": game.playerOne.position.x,
-                "y": game.playerOne.position.y,
-                "width": game.playerOne.width,
-                "height": game.playerOne.height,
-                "angle": game.playerOne.direction.angle,
-                "attack": game.playerOne.attack
-            },
-            "playerTwo": {
-                "score": game.playerTwoScore,
-                "x": game.playerTwo.position.x,
-                "y": game.playerTwo.position.y,
-                "width": game.playerTwo.width,
-                "height": game.playerTwo.height,
-                "angle": game.playerTwo.direction.angle,
-                "attack": game.playerTwo.attack
-            },
-            "playState": game.playState,
-        }
-    };
-
     private checkScale(scale: number): number {
         if (scale < 0.1) {
             return 0.1;

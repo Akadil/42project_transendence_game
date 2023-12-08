@@ -18,10 +18,14 @@ Table of contents
 <!--te-->
 <br> </br>
 
-The structure of the code
-==============================
+Game's socket connection (gateway.ts file)
+---
+
+Any user connects. The difference is that authorized user can store his scores and etc. 
 
 
+```typescript
+   handleConnection(@ConnectedSocket() socket: Socket) {
 
-* matches module to manage the games. Add, remove, update, get
-( )
+   }
+```
