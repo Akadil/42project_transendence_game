@@ -199,7 +199,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				roomId: gameId.toString()
 			});
 
-
 			this._waitingUser.emit('gameFound', {
 				message: 'Found opponent',
 				opponent: token.toString(),
