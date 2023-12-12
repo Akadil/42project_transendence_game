@@ -43,6 +43,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     handleConnection(@ConnectedSocket() socket: Socket) {
         console.log(`Client connected: ${socket.id}`);
 
+        this.gameService.connection(socket.id, socket.handshake.query.token);
+
         let token = socket.handshake.query.token;
 
         if (token) {
@@ -69,6 +71,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 username: 'defaultio',
                 roomId: '',
                 isLive: true,
+                authenticated: false,
             });
         }
     }
@@ -84,24 +87,32 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     matchMaking(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
         console.log('[Matchmaking] ', socket.id, ' wants to matchmake');
 
-        const info = this.gameService.matchmaking(socket.id);
+        const info = this.gameService.matchmaking(socket.id, data);
 
         if (info.ready === false) {
             this.server.to(info.roomId).emit('joinedQueue', info.player);
             socket.emit('waiting', info.opponents);
             socket.join(info.roomId);
         } else {
-            socket.emit('gameFound', info);
+            socket.join(info.roomId);
+            this.server.to(info.roomId).emit('gameFound', info);
             /** @todo trigger to start the game */
-            /** @todo function for notifying 3, 2, 1, GO! */
         }
     }
 
     @SubscribeMessage('playFriend')
-    playFriend(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}
+    playFriend(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+        console.log('Under construction');
+    }
 
     @SubscribeMessage('playBot')
-    playBot(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}
+    playBot(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+        console.log('[PlayBot] ', socket.id, ' wants to play with a bot');
+
+        const info = this.gameService.playBot(socket.id);
+        socket.join(info.roomId);
+        socket.emit('gameFound', info);
+    }
 
     @SubscribeMessage('move_key')
     move(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}
@@ -112,8 +123,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('leave')
     leave(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}
 
-    @SubscribeMessage('resume')
-    resume(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}
+    @SubscribeMessage('reconnection')
+    reconnection(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}
 
     @SubscribeMessage('inspector')
     inspector(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {}

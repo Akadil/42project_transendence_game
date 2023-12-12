@@ -4,4 +4,5 @@ interface Player {
     username: string;
     roomId: string;
     isLive: boolean;
+    authenticated: boolean;
 }
