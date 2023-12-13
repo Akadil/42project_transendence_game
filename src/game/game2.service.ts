@@ -8,6 +8,8 @@ import { UpdateGameDto } from './dto/update-game.dto';
 import { MatchmakingDto } from './dto/matchmaking.dto';
 import { generateUsername } from 'unique-username-generator';
 import * as jwt from 'jsonwebtoken';
+import { Room } from './entities/room.interface';
+import { Socket } from 'socket.io';
 
 /**
  * @brief   This service is used to manage the games
@@ -27,11 +29,12 @@ import * as jwt from 'jsonwebtoken';
 @Injectable()
 export class GameService {
     private static id: number = 0;
-    private _games: Map<String, Game> = new Map();
-    private _players: Map<string, Player> = new Map(); // <socket_id, Player>
-    private _players_auth: Map<string, string> = new Map(); // <token, socket_id>
-    private _rooms: Map<string, Room> = new Map(); // <room_id, Room>
+
+    private _players: Map<string, Player> = new Map();
+    private _players_auth: Map<string, string> = new Map();
+    private _rooms: Map<string, Room> = new Map();
     private _queue_2p: Player | null = null;
+    private _queue_2p_id: string | null = null;
     private _queue_4p: Array<Player> = new Array();
 
     constructor() {}
@@ -86,75 +89,90 @@ export class GameService {
      * @todo change the format of gameInfo
      */
     matchmaking(socketId: string, gameInfo: any): MatchmakingDto {
-        const matchmakingDto = new MatchmakingDto();
-
         // Handle different modes of Matchmaking
         if (gameInfo.mode === '2 player') {
-
             if (this._queue_2p === null) {
                 const player = this._players.get(socketId);
-                
+
                 this._queue_2p = player;
-                player.roomId = GameService.id.toString();
-                GameService.id++
+                player.roomId = (GameService.id++).toString();
                 this._rooms.set(player.roomId, {
-                    roomId: player.roomId,
-                    gameId: -1,
-                    intervalId: null,
+                    id: player.roomId,
+                    game: null,
+                    gameLoop: null,
                     leftTeam: new Array(player),
                     rightTeam: new Array(),
-                    isLive: true,
+                    isLive: false,
                 });
-                
 
-
-                matchmakingDto.ready = false;
-                matchmakingDto.player = this._queue_2p.userId;
-                matchmakingDto.opponents.push(this._queue_2p.userId);
-                matchmakingDto.roomId = GameService.id.toString();
-                matchmakingDto.status_code = 200;
-                matchmakingDto.message = 'OK';
-                return matchmakingDto;
+                return {
+                    status_code: 200,
+                    ready: false,
+                    message: 'OK',
+                    roomId: player.roomId,
+                    player: player.socketId,
+                    opponents: new Array(player.socketId),
+                };
             } else {
-                /**
-                 * @todo Create the game and add it to the list of games
-                 * @todo Create the room and add it to the list of rooms
-                 * @todo Add the players to the room
-                 */
-                let player1 = this._queue_2p;
+                const player1 = this._queue_2p;
+                const player2 = this._players.get(socketId);
+                const room = this._rooms.get(player1.roomId);
+
                 this._queue_2p = null;
-                let player2 = this._players.get(socketId);
+                player2.roomId = room.id;
+                room.rightTeam.push(player2);
+                room.isLive = true;
+                room.game = new Game(player1.socketId, player2.socketId);
 
-                
-
-                return matchmakingDto;
+                return {
+                    status_code: 200,
+                    ready: true,
+                    message: 'OK',
+                    roomId: room.id,
+                    player: player2.socketId,
+                    opponents: new Array(player1.socketId),
+                };
             }
         } else if (gameInfo.mode === '4 player') {
+            /* @attention work in progress */
+
+            return new MatchmakingDto();
         } else if (gameInfo.mode === 'simple pong') {
             /* @attention work in progress */
 
-            matchmakingDto.status_code = 101;
-            matchmakingDto.message = 'Not existing mode';
-            return matchmakingDto;
+            return new MatchmakingDto();
         } else {
-            matchmakingDto.status_code = 101;
-            matchmakingDto.message = 'Not existing mode';
-            return matchmakingDto;
+            return new MatchmakingDto();
         }
     }
 
-    createGame(createGameDto: CreateGameDto) {
-        const game = new Game(
-            createGameDto.playerOneId, createGameDto.playerTwoId,
-            createGameDto.courtScale, createGameDto.maxScore
-        );
-        this._games.push(game);
-        return game.id;
-    }
+    startGame(roomId: string, socket: Socket) {
+        const room = this._rooms.get(roomId);
 
-    startGame(createGameDto: CreateGameDto): GameInfoDto {
-        let game = new Game(createGameDto);
-        this._games.push(game);
-        return game.gameInfo;
+        room.gameLoop = setInterval(() => {
+            socket.emit('gameUpdate', room.game.liveInfo);
+            room.game.update();
+            return room.game.gameState;
+            // if (game.gameState === GameState.GAME_OVER) {
+            //     roomToEmit.emit('gameOver', game.gameInfo);
+            //     this._users.get(room.playerOne).roomId = '-1';
+            //     this._users.get(room.playerTwo).roomId = '-1';
+            //     clearInterval(room.intervalId);
+
+            //     console.log('[Game] finished the game');
+            //     try {
+            //         this.userService.recordMatchResult(
+            //             room.playerOne,
+            //             room.playerTwo,
+            //             game.gameInfo.winner
+            //         );
+            //     } catch (error) {
+            //         console.log('[Game] error: ', error.message);
+            //     }
+            //     this.gameService.remove(room.gameId);
+
+            //     this._rooms.delete(room.roomId);
+            // }
+        }, 1000 / 60);
     }
 }

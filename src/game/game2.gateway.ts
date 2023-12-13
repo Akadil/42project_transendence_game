@@ -27,16 +27,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
      * @brief <token_id, socket_id>
      * @details I need it only for reconnection
      */
-    private _usersAuth: Map<string, string> = new Map();
+    // private _usersAuth: Map<string, string> = new Map();
 
     /** @brief <socket_id, Player> */
-    private _users: Map<string, Player> = new Map();
+    // private _users: Map<string, Player> = new Map();
 
     /** @brief <room_id, Room> */
-    private _rooms: Map<string, Room> = new Map();
+    // private _rooms: Map<string, Room> = new Map();
 
-    private _queue_2p: Array<Player> = new Array();
-    private _queue_4p: Array<Player> = new Array();
+    // private _queue_2p: Array<Player> = new Array();
+    // private _queue_4p: Array<Player> = new Array();
 
     constructor(private readonly gameService: GameService) {}
 
@@ -97,6 +97,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
             socket.join(info.roomId);
             this.server.to(info.roomId).emit('gameFound', info);
             /** @todo trigger to start the game */
+
+            /*
+            this.server.to(info.roomId).emit('gameFound', liveInfo);
+            liveInfo = this.gameService.updateGame(info.roomId);
+            */
         }
     }
 

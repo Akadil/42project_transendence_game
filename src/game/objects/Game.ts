@@ -64,7 +64,7 @@ export class Game {
         this._endDate = new Date();
     }
 
-    updateGame() {
+    update() {
         if (this._gameState === GameState.PLAYING) {
             this._playerOne.update();         // depends on the button state
             this._playerTwo.update();         // depends on the button state
