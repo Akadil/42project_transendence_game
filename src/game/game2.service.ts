@@ -8,8 +8,9 @@ import { UpdateGameDto } from './dto/update-game.dto';
 import { MatchmakingDto } from './dto/matchmaking.dto';
 import { generateUsername } from 'unique-username-generator';
 import * as jwt from 'jsonwebtoken';
-import { Room } from './entities/room.interface';
-import { Socket } from 'socket.io';
+import { BroadcastOperator, Server, Socket } from 'socket.io';
+import { Room } from './objects/Room';
+import { EventsMap, TypedEventBroadcaster } from 'socket.io/dist/typed-events';
 
 /**
  * @brief   This service is used to manage the games
@@ -28,7 +29,7 @@ import { Socket } from 'socket.io';
  */
 @Injectable()
 export class GameService {
-    private static id: number = 0;
+    private static id: number = 1;
 
     private _players: Map<string, Player> = new Map();
     private _players_auth: Map<string, string> = new Map();
@@ -89,64 +90,47 @@ export class GameService {
      * @todo change the format of gameInfo
      */
     matchmaking(socketId: string, gameInfo: any): MatchmakingDto {
-        // Handle different modes of Matchmaking
+        const returner = new MatchmakingDto();
+
+        /** Check the game mode */
         if (gameInfo.mode === '2 player') {
+            /** Check if there are someone in the queue */
             if (this._queue_2p === null) {
                 const player = this._players.get(socketId);
-
                 this._queue_2p = player;
-                player.roomId = (GameService.id++).toString();
-                this._rooms.set(player.roomId, {
-                    id: player.roomId,
-                    game: null,
-                    gameLoop: null,
-                    leftTeam: new Array(player),
-                    rightTeam: new Array(),
-                    isLive: false,
-                });
 
-                return {
-                    status_code: 200,
-                    ready: false,
-                    message: 'OK',
-                    roomId: player.roomId,
-                    player: player.socketId,
-                    opponents: new Array(player.socketId),
-                };
+                const newRoomId = (GameService.id++).toString();
+                const newRoom = new Room({ id: newRoomId, leftTeam: [player] });
+                this._rooms.set(player.roomId, newRoom);
+
+                returner.player = player.socketId;
+                returner.roomId = newRoomId;
             } else {
                 const player1 = this._queue_2p;
                 const player2 = this._players.get(socketId);
                 const room = this._rooms.get(player1.roomId);
 
                 this._queue_2p = null;
-                player2.roomId = room.id;
-                room.rightTeam.push(player2);
-                room.isLive = true;
+                room.add_rightTeam(player2);
                 room.game = new Game(player1.socketId, player2.socketId);
 
-                return {
-                    status_code: 200,
-                    ready: true,
-                    message: 'OK',
-                    roomId: room.id,
-                    player: player2.socketId,
-                    opponents: new Array(player1.socketId),
-                };
+                returner.ready = true;
+                returner.roomId = room.id;
+                returner.player = player2.socketId;
+                returner.opponents.push(player1.socketId);
             }
         } else if (gameInfo.mode === '4 player') {
             /* @attention work in progress */
 
             return new MatchmakingDto();
-        } else if (gameInfo.mode === 'simple pong') {
-            /* @attention work in progress */
-
-            return new MatchmakingDto();
         } else {
-            return new MatchmakingDto();
+            returner.status_code = 101;
+            returner.message = 'Wrong game mode';
         }
+        return returner;
     }
 
-    startGame(roomId: string, socket: Socket) {
+    startGameBroadcasting(roomId: string, socket: Server) {
         const room = this._rooms.get(roomId);
 
         room.gameLoop = setInterval(() => {

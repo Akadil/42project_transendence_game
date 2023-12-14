@@ -44,36 +44,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log(`Client connected: ${socket.id}`);
 
         this.gameService.connection(socket.id, socket.handshake.query.token);
-
-        let token = socket.handshake.query.token;
-
-        if (token) {
-            // autorized users
-            /** @todo handle reconnection */
-            try {
-                let payload = jwt.verify(
-                    token.toString(),
-                    process.env.JWT_SECRET
-                ) as jwt.JwtPayload;
-                const userId = payload.userId;
-                const username = payload.pseudo;
-            } catch (e) {
-                console.log(e.message);
-                socket.disconnect();
-                return;
-            }
-        } else {
-            // unauthorized users
-            this._usersAuth.set(socket.id, socket.id);
-            this._users.set(socket.id, {
-                socketId: socket.id,
-                userId: socket.id,
-                username: 'defaultio',
-                roomId: '',
-                isLive: true,
-                authenticated: false,
-            });
-        }
     }
 
     /**
@@ -98,6 +68,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.server.to(info.roomId).emit('gameFound', info);
             /** @todo trigger to start the game */
 
+            this.gameService.startGameBroadcasting(info.roomId, this.server);
+
             /*
             this.server.to(info.roomId).emit('gameFound', liveInfo);
             liveInfo = this.gameService.updateGame(info.roomId);
@@ -114,9 +86,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     playBot(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
         console.log('[PlayBot] ', socket.id, ' wants to play with a bot');
 
-        const info = this.gameService.playBot(socket.id);
-        socket.join(info.roomId);
-        socket.emit('gameFound', info);
+        // const info = this.gameService.playBot(socket.id);
+        // socket.join(info.roomId);
+        // socket.emit('gameFound', info);
     }
 
     @SubscribeMessage('move_key')
