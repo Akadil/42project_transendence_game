@@ -152,7 +152,6 @@ export class GameService {
         room.gameLoop = setInterval(() => {
             socket.emit('gameUpdate', room.game.liveInfo);
             room.game.update();
-            return room.game.gameState;
             // if (game.gameState === GameState.GAME_OVER) {
             //     roomToEmit.emit('gameOver', game.gameInfo);
             //     this._users.get(room.playerOne).roomId = '-1';
