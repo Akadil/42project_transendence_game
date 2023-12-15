@@ -100,7 +100,8 @@ export class GameService {
                 this._queue_2p = player;
 
                 const newRoomId = (GameService.id++).toString();
-                const newRoom = new Room({ id: newRoomId, leftTeam: [player] });
+                const newRoom = new Room({ id: newRoomId, gameMode: '1v1' });
+                newRoom.add_leftTeam(player);
                 this._rooms.set(player.roomId, newRoom);
 
                 returner.player = player.socketId;
@@ -130,32 +131,12 @@ export class GameService {
         return returner;
     }
 
-    startGameBroadcasting(roomId: string, socket: Server) {
+    startGameBroadcasting(roomId: string, server: Server) {
         const room = this._rooms.get(roomId);
 
         room.gameLoop = setInterval(() => {
-            socket.emit('gameUpdate', room.game.liveInfo);
+            server.to(roomId).emit('gameUpdate', room.game.liveInfo);
             room.game.update();
-            // if (game.gameState === GameState.GAME_OVER) {
-            //     roomToEmit.emit('gameOver', game.gameInfo);
-            //     this._users.get(room.playerOne).roomId = '-1';
-            //     this._users.get(room.playerTwo).roomId = '-1';
-            //     clearInterval(room.intervalId);
-
-            //     console.log('[Game] finished the game');
-            //     try {
-            //         this.userService.recordMatchResult(
-            //             room.playerOne,
-            //             room.playerTwo,
-            //             game.gameInfo.winner
-            //         );
-            //     } catch (error) {
-            //         console.log('[Game] error: ', error.message);
-            //     }
-            //     this.gameService.remove(room.gameId);
-
-            //     this._rooms.delete(room.roomId);
-            // }
         }, 1000 / 60);
     }
 }

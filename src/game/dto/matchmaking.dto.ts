@@ -14,4 +14,6 @@ export class MatchmakingDto {
         this.player = data.player || '-1';
         this.opponents = new Array<string>();
     }
+
+    
 }
